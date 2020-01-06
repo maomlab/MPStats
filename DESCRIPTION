@@ -1,0 +1,23 @@
+Package: MPStats
+Type: Package
+Version: 0.0.0.9000
+Title: Tools for analyzing Morphological Profiling data
+Description: Morphological profiling is an assay were cells are stained with
+    multiple spectrally separated dyes and then imaged in high-throughput.
+    This package collects methods for analyzing pharmacological effects on cellular
+    features across platted cells.
+Authors@R: person("Matthew", "O'Meara", email = "mattjomeara@gmail.com",
+    role = c("aut", "cre"))
+URL: http://github.com/momeara/mp_stats
+BugReports: https://github.com/momeara/mp_stats/issues
+Depends:
+    R (>= 3.6.0)
+Imports:
+    scales (>= 1.0.0),
+    broom (>= 0.5.2.9001),
+    dplyr (>= 0.8.3),
+    stringr (>= 1.4.0),
+    ggplot2 (>= 1.0.1),
+    drc (>= 3.0-1)
+Collage: 'geom_indicator.R'
+RoxygenNote: 5.0.1
