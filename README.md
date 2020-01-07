@@ -1,19 +1,16 @@
----
-title: "README.md"
----
 
 
-Morphological Profiling Statistics
+#Morphological Profiling Statistics
 
-# Introduction
+## Introduction
 
 This is a collection of R tools for statistical modeling morphological profiling experiments aka CellPainting.
 
 This is built on `R` and meant to be run from within KNIME.
 
-# Installiation
+## Installiation
 
-## Install R packages
+### Install R packages
 
     devtools::install_github("momeara/MPStats")
     install.packages("Rserve")
