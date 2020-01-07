@@ -48,16 +48,29 @@ fits <- dose_response_data %>%
   })
 
 
+dr_summary <- dose_response_data %>%
+  dplyr::group_by(log_dose, compound) %>%
+  dplyr::summarize(
+    value = mean(value),
+    # the variance of an average of iid variables:
+    variance = sum(variance) / dplyr::n()^2)
 
 
-p <- ggplot2::ggplot(data=dose_response_data) +
+p <- ggplot2::ggplot(data=dr_summary) +
   ggplot2::theme_bw() +
   ggplot2::geom_line(
     data=fits,
     mapping=ggplot2::aes(
       x=log_dose,
       y=pred_value)) +
+  ggplot2::geom_errorbar(
+    data=dr_summary,
+    mapping=ggplot2::aes(
+      x=log_dose,
+      ymin=value - sqrt(variance),
+      ymax=value + sqrt(variance))) +
   ggplot2::geom_point(
+    data=dr_summary,
     mapping=ggplot2::aes(
       x=log_dose,
       y=value)) +
