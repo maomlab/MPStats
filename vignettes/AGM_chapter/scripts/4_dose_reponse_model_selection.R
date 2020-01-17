@@ -96,5 +96,11 @@ p <- ggplot2::ggplot(data=dose_response_data) +
     labels=scales::percent_format()) +
   ggplot2::facet_wrap(~compound, scales="free_x")
 
-ggplot2::ggsave(filename="product/dose_response_curves_tcpl_191126.pdf", height=15, width=15)
-ggplot2::ggsave(filename="product/dose_response_curves_tcpl_191126.png", height=15, width=15)
+ggplot2::ggsave(
+  filename=paste0("product/dose_response_curves_tcpl_", MPStats::date_code(), ".pdf"),
+  height=15,
+  width=15)
+ggplot2::ggsave(
+  filename=paste0("product/dose_response_curves_tcpl_", MPStats::date_code(), ".png"),
+  height=15,
+  width=15)
