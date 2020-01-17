@@ -8,7 +8,7 @@ cat("Fitting score by compound dose\n")
 load("intermediate_data/well_scores.Rdata")
 load("intermediate_data/compound_moa.Rdata")
 
-score_by_dose_fits <- MPStats::fit_drc_score_by_dose(well_scores)
+score_by_dose_fits <- MPStats::fit_drc_score_by_dose(well_scores=well_scores)
 save(score_by_dose_fits, file="intermediate_data/score_by_dose_fits.Rdata")
 score_by_dose_fits %>% readr::write_tsv(
   path=paste0("product/score_by_dose_fits_summary_", MPStats::date_code(), ".tsv"))

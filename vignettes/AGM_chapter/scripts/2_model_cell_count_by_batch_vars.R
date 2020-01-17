@@ -9,8 +9,7 @@ load("intermediate_data/well_scores.Rdata")
 
 model <- MPStats::model_cell_count_by_batch_vars_lm(well_scores=well_scores)
 summary(model) %>%
-  readr::write_lines(
-    path=paste0("product/cell_count_by_batch_vars_", MPStats::date_code(), ".txt"))
+  capture.output(file=paste0("product/cell_count_by_batch_vars_", MPStats::date_code(), ".txt"))
 
 
 plot <- MPStats::plot_cell_count_by_batch_vars(

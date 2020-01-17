@@ -19,8 +19,11 @@ plot_drc_score_by_dose <- function(well_scores, fits, subtitle=NULL){
     dplyr::filter(!is_control) %>%
     dplyr::group_by(log_dose, compound) %>%
     dplyr::summarize(
-      value = sum(n_positive),
-      variance = binomial_variance(sum(n_positive), sum(cell_count))) %>%
+      n_positive = sum(n_positive),
+      cell_count = sum(cell_count),
+      prob_positive = n_positive/cell_count,
+      prob_positive_low = binomial_quantile(n_positive, cell_count, .025),
+      prob_positive_high = binomial_quantile(n_positive, cell_count, .975)) %>%
     dplyr::ungroup()
 
   p <- ggplot2::ggplot() +
@@ -34,13 +37,13 @@ plot_drc_score_by_dose <- function(well_scores, fits, subtitle=NULL){
       data=compound_dose_scores,
       mapping=ggplot2::aes(
         x=log_dose,
-        ymin=value - sqrt(variance),
-        ymax=value + sqrt(variance))) +
+        ymin=prob_positive_low,
+        ymax=prob_positive_high)) +
     ggplot2::geom_point(
       data=compound_dose_scores,
       mapping=ggplot2::aes(
         x=log_dose,
-        y=value)) +
+        y=prob_positive)) +
     geom_indicator(
       data=fits %>% dplyr::distinct(compound, p_value),
       mapping=ggplot2::aes(

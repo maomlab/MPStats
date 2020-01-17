@@ -45,6 +45,20 @@ binomial_variance <- function(n_positive, n_trials){
   (n_positive+1)*(m_negative+1)/((n_positive + m_negative + 2)^2 * (n_positive + m_negative + 3))
 }
 
+#' Quantile of bayesian estimator for binomial trial with flat prior
+#' 
+#' Using the above derivation, the bayesian estimator for the success probability p
+#' from a binomial trial with n successes and m failures and flat prior is Beta(n+1, m+1).
+#' 
+#' @param n_positive number of successes in binomial trial
+#' @param n_trials number of binomial trials
+#' @param p probability quantile to return
+#' @export
+binomial_quantile <- function(n_positive, n_trials, p){
+  m_negative <- n_trials - n_positive
+  qbeta(p=p, shape1=n_positive+1, shape2=m_negative+1)
+}
+
 
 
 #' @importFrom magrittr %>%

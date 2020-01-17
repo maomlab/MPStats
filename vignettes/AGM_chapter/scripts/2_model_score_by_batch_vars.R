@@ -1,17 +1,16 @@
 library(plyr)
 library(tidyverse)
 library(MPStats)
-library(brms)
 
 cat("Modeling score by batch variables\n")
 
 load("intermediate_data/well_scores.Rdata")
+load("intermediate_data/compound_moa.Rdata")
 
 
 model <- MPStats::model_score_by_batch_vars_lm(well_scores)
 summary(model) %>%
-  readr::write_lines(
-    path=paste0("product/model_score_by_batch_vars_summary_", MPStats::date_code(), ".txt"))
+  capture.output(file=paste0("product/model_score_by_batch_vars_summary_", MPStats::date_code(), ".txt"))
 
 
 compound_moa %>%
@@ -20,7 +19,9 @@ compound_moa %>%
     cat("Fitting batch variables conditional on known MOA type: '", moa_type, "' ...\n", sep="")
     scores <- well_scores %>% dplyr::semi_join(compounds, by="compound")
     model <- MPStats::model_score_by_batch_vars_lm(well_scores=scores)
-    model %>% summary() %>% print()
+    model %>%
+      summary() %>%
+      capture.output(file=paste0("product/model_score_by_batch_vars_", moa_type, "_", MPStats::date_code(), ".txt"))
   })
 
 
