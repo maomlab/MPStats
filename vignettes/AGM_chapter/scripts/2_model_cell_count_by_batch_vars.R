@@ -3,6 +3,8 @@ library(tidyverse)
 library(MPStats)
 library(ggplot2)
 
+cat("Modeling cell count by batch variables\n")
+
 load("intermediate_data/well_scores.Rdata")
 
 model <- MPStats::model_cell_count_by_batch_vars_lm(well_scores=well_scores)

@@ -22,16 +22,8 @@ Start `Rserver` in R
     library(Rserve)
     Rserve(args = "--vanilla")
 
-download data
-
-    wget URL-TBD/ProbPos_55Plates.csv
-
 Open `vignettes/AGM_chapter/knime_workflows/MPStats_AGM.knar.knwf` in KNIME. Set the path for the plate data "parse well scores" panel
 
-    
-# Analysis results:
-
-## Batch effects
 
 
     

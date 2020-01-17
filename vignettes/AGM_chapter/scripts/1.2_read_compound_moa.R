@@ -1,8 +1,6 @@
 library(MPStats)
 
-# Load known compound mechanism of action
-# and merge it with the well scores
-
+cat("Reading in compound mechanism of action\n")
 
 load("intermediate_data/well_scores.Rdata")
 

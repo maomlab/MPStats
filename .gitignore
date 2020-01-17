@@ -12,6 +12,5 @@ inst/doc
 .DS_Store
 Icon[]
 
-vignettes/AGM_chapter/raw_data/*
 vignettes/AGM_chapter/intermediate_data/*
 vignettes/AGM_chapter/product/*

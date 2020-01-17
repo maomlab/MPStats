@@ -3,6 +3,8 @@ library(tidyverse)
 library(MPStats)
 library(brms)
 
+cat("Modeling score by batch variables\n")
+
 load("intermediate_data/well_scores.Rdata")
 
 
@@ -20,13 +22,6 @@ compound_moa %>%
     model <- MPStats::model_score_by_batch_vars_lm(well_scores=scores)
     model %>% summary() %>% print()
   })
-
-
-
-batch_model <- brms::brm(
-  formula= n_positive | trials(well_cell_count) ~ week_id + plate_ind + row,
-  data=well_scores %>% dplyr::filter(!is_control),
-  family = binomial("logit"))
 
 
 plot <- MPStats::plot_score_by_batch_vars(

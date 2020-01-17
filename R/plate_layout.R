@@ -8,8 +8,10 @@
 #'        
 #'@export
 plate_layout <- function(well_scores, week, plate){
+  selected_week <- week
+  selected_plate <- plate
   well_scores %>%
-    dplyr::filter(week == get("week", pos=1), plate==get("plate", pos=1)) %>%
+    dplyr::filter(week == selected_week, plate==selected_plate) %>%
     dplyr::mutate(well_name = paste0(compound, "|", log_dose)) %>%
     dplyr::arrange(row, column) %>%
     tidyr::pivot_wider(

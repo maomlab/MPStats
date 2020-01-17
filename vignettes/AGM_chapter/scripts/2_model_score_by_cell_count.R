@@ -2,6 +2,9 @@ library(plyr)
 library(tidyverse)
 library(ggplot2)
 
+cat("Modeling score by cell count\n")
+
+
 load("intermediate_data/well_scores.Rdata")
 
 plot <- plot_score_by_cell_count(

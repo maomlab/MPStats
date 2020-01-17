@@ -1,7 +1,7 @@
-# parse well_scores
-
 library(tidyverse)
 library(MPStats)
+
+cat("Reading in well scores\n")
 
 
 # load well scores
