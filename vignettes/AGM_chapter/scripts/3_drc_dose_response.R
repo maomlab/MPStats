@@ -15,7 +15,8 @@ score_by_dose_fits %>% readr::write_tsv(
 
 plot_all <- MPStats::plot_drc_score_by_dose(
   well_scores=well_scores,
-  fits=score_by_dose_fits)
+  fits=score_by_dose_fits,
+  subtitle="Human MCF7 cells -- compound-profiling experiment (BBBC021v1)")
 ggplot2::ggsave(
   plot=plot_all,
   filename=paste0("product/score_by_dose_", MPStats::date_code(), ".pdf"),
@@ -35,12 +36,14 @@ compound_moa %>%
       well_scores = well_scores %>%
         dplyr::semi_join(compounds, by="compound"),
       fits = score_by_dose_fits %>%
-        dplyr::semi_join(compounds, by="compound"))
+        dplyr::semi_join(compounds, by="compound"),
+      subtitle="Human MCF7 cells -- compound-profiling experiment (BBBC021v1)")
+      
     
     # use the number of rows x columns to figure out plot size
     facet_dims <- compounds %>% nrow() %>% ggplot2::wrap_dims()
-    height <- facet_dims[1] * 5
-    width <- facet_dims[2] * 5
+    height <- facet_dims[1] * 2
+    width <- facet_dims[2] * 2
     
     ggplot2::ggsave(
       plot=plot,

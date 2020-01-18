@@ -32,7 +32,9 @@ plot_drc_score_by_dose <- function(well_scores, fits, subtitle=NULL){
       data=fits,
       mapping=ggplot2::aes(
         x=log_dose,
-        y=pred_value)) +
+        y=pred_value),
+      color="blue",
+      size=1.5) +
     ggplot2::geom_errorbar(
       data=compound_dose_scores,
       mapping=ggplot2::aes(
@@ -55,7 +57,7 @@ plot_drc_score_by_dose <- function(well_scores, fits, subtitle=NULL){
       label="Score by log dose",
       subtitle=subtitle) +
     ggplot2::scale_x_continuous(
-      "log[Compound dose] (nM)") +
+      "log[Compound dose] (uM)") +
     ggplot2::scale_y_continuous(
       "Score",
       limits=c(0,1),
