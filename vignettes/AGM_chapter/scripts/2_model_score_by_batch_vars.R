@@ -10,7 +10,7 @@ load("intermediate_data/compound_moa.Rdata")
 
 model <- MPStats::model_score_by_batch_vars_lm(well_scores)
 summary(model) %>%
-  capture.output(file=paste0("product/model_score_by_batch_vars_summary_", MPStats::date_code(), ".txt"))
+  capture.output(file=paste0("product/model_score_by_batch_vars_", MPStats::date_code(), ".txt"))
 
 
 compound_moa %>%

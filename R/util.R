@@ -39,10 +39,16 @@ date_code <- function(d=NA){
 #' 
 #' @param n_positive number of successes in binomial trial
 #' @param n_trials number of binomial trials
+#' @param prior_positive number of pseudo successes to add as prior
+#' @param prior_negative number of pseudo failures to add as prior
 #' @return variance of parameter estimate
-binomial_variance <- function(n_positive, n_trials){
+binomial_variance <- function(n_positive, n_trials, prior_positive=1, prior_negative=1){
   m_negative <- n_trials - n_positive
-  (n_positive+1)*(m_negative+1)/((n_positive + m_negative + 2)^2 * (n_positive + m_negative + 3))
+  n_positive <- n_positive + prior_positive
+  m_negative <- m_negative + prior_negative
+  numerator <- n_positive*m_negative
+  denominator <- (n_positive + m_negative)^2 * (n_positive + m_negative + 1)
+  numerator / denominator
 }
 
 #' Quantile of bayesian estimator for binomial trial with flat prior
