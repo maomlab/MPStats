@@ -15,15 +15,23 @@ This is built on `R` and meant to be run from within KNIME.
     devtools::install_github("momeara/MPStats")
     install.packages("Rserve")
 
-# Run
+# Run AGM Chapter Vignette as a batch
+
+    git clone git@github.com:momeara/MPStats.git
+    cd MPStats/vignettes/AGM_chapter
+    make clean
+    make run_analysis
+    
+# Run AGM Chapter Vignette from within KNIME
 
 Start `Rserver` in R
 
     library(Rserve)
     Rserve(args = "--vanilla")
 
-Open `vignettes/AGM_chapter/knime_workflows/MPStats_AGM.knar.knwf` in KNIME. Set the path for the plate data "parse well scores" panel
-
+1.  Open `vignettes/AGM_chapter/knime_workflows/MPStats_AGM.knar.knwf` in KNIME.
+2.  Set the path for the plate data "parse well scores" panel
+3.  Click `Excute All` from the commandbar
 
 
     

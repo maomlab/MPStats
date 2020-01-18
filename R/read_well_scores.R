@@ -23,10 +23,10 @@
 #'  
 #' @export
 read_well_scores <- function(input){
-  if(is.character(file)){
-    cat("Reading well scores table from '", file, "' ...\n")
+  if(is.character(input)){
+    cat("Reading well scores table from '", input, "' ...\n", sep="")
     well_scores <- readr::read_csv(
-      file=file,
+      file=input,
       col_types=readr::cols(
         Metadata_PlateID_Nuclei = readr::col_character(),
         Metadata_WellID_Nuclei = readr::col_character(),
@@ -35,12 +35,12 @@ read_well_scores <- function(input){
         Metadata_Image_Metadata_Concentration = readr::col_double(),
         probPos = readr::col_double(),
         probNeg = readr::col_double()))
-  } else if(is.data.frame(file)){
-    cat("Parsing well scores table ...")
-    well_scores <- file
+  } else if(is.data.frame(input)){
+    cat("Parsing well scores table ...\n")
+    well_scores <- input
   } else {
-    cat("Unable to read ")
-    
+    cat("Unable to read well scores table ...\n")
+    stop()
   }
   well_scores <- well_scores %>%
     dplyr::transmute(
