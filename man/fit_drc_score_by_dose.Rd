@@ -19,5 +19,6 @@ Use the R drc package to fit dose response data
 The model that is fit is the 4-parameter sigmoid with bottom fixed at 0.
 To fit the curve, drc uses weighted least squares. Assuming errors are not
 correlated the BLUE has weight w_i = 1/V_i, where V_i is the variance of the
-bayesian probability positive estimator using a flat prior.
+bayesian probability positive estimator using a prior of Beta(10,10)
+and then normalized so each replica has on average weight 1.
 }

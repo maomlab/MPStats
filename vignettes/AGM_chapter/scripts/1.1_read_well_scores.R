@@ -5,7 +5,7 @@ cat("Reading in well scores\n")
 
 
 # load well scores
-well_scores <- MPStats::read_well_scores(file="raw_data/ProbPos_CellCount_55Plates.csv")
+well_scores <- MPStats::read_well_scores(input="raw_data/ProbPos_CellCount_55Plates.csv")
 save(well_scores, file="intermediate_data/well_scores.Rdata")
 
 # show plate layout for plate 4 on week 9

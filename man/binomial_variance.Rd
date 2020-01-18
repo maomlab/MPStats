@@ -4,12 +4,17 @@
 \alias{binomial_variance}
 \title{Variance of bayesian estimator for binomial trial with flat prior}
 \usage{
-binomial_variance(n_positive, n_trials)
+binomial_variance(n_positive, n_trials, prior_positive = 1,
+  prior_negative = 1)
 }
 \arguments{
 \item{n_positive}{number of successes in binomial trial}
 
 \item{n_trials}{number of binomial trials}
+
+\item{prior_positive}{number of pseudo successes to add as prior}
+
+\item{prior_negative}{number of pseudo failures to add as prior}
 }
 \value{
 variance of parameter estimate

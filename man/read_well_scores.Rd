@@ -4,10 +4,18 @@
 \alias{read_well_scores}
 \title{Read well scores table}
 \usage{
-read_well_scores(file)
+read_well_scores(input)
 }
 \arguments{
-\item{file}{path to well scores csv, (e.g. ProbPos_CellCount_55Plates.csv)}
+\item{input}{path to well scores csv (e.g. ProbPos_CellCount_55Plates.csv) or
+data.frame with columns
+    Metadata_PlateID_Nuclei               : chr
+    Metadata_WellID_Nuclei                : chr
+    Children_Cells_Count_Nuclei           : num
+    Metadata_Image_Metadata_Compound      : chr
+    Metadata_Image_Metadata_Concentration : num
+    probPos                               : num
+    probNeg                               : num}
 }
 \value{
 well_scores data.frame with columns

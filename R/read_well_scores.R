@@ -1,6 +1,15 @@
 #'Read well scores table
 #'
-#' @param file path to well scores csv, (e.g. ProbPos_CellCount_55Plates.csv)
+#' @param input path to well scores csv (e.g. ProbPos_CellCount_55Plates.csv) or
+#'              data.frame with columns
+#'                  Metadata_PlateID_Nuclei               : chr
+#'                  Metadata_WellID_Nuclei                : chr
+#'                  Children_Cells_Count_Nuclei           : num
+#'                  Metadata_Image_Metadata_Compound      : chr
+#'                  Metadata_Image_Metadata_Concentration : num
+#'                  probPos                               : num
+#'                  probNeg                               : num
+#'                      
 #' @return well_scores data.frame with columns
 #'   week_id    : int  10 10 10 10 10 10 10 10 10 10 ...
 #'   plate_ind  : int  1 1 1 1 1 1 1 1 1 1 ...
@@ -13,17 +22,27 @@
 #'   n_positive : int  0 0 0 0 0 0 0 0 0 303 ...
 #'  
 #' @export
-read_well_scores <- function(file){
-  well_scores <- readr::read_csv(
-    file=file,
-    col_types=readr::cols(
-      Metadata_PlateID_Nuclei = readr::col_character(),
-      Metadata_WellID_Nuclei = readr::col_character(),
-      Children_Cells_Count_Nuclei = readr::col_double(),
-      Metadata_Image_Metadata_Compound = readr::col_character(),
-      Metadata_Image_Metadata_Concentration = readr::col_double(),
-      probPos = readr::col_double(),
-      probNeg = readr::col_double())) %>%
+read_well_scores <- function(input){
+  if(is.character(file)){
+    cat("Reading well scores table from '", file, "' ...\n")
+    well_scores <- readr::read_csv(
+      file=file,
+      col_types=readr::cols(
+        Metadata_PlateID_Nuclei = readr::col_character(),
+        Metadata_WellID_Nuclei = readr::col_character(),
+        Children_Cells_Count_Nuclei = readr::col_double(),
+        Metadata_Image_Metadata_Compound = readr::col_character(),
+        Metadata_Image_Metadata_Concentration = readr::col_double(),
+        probPos = readr::col_double(),
+        probNeg = readr::col_double()))
+  } else if(is.data.frame(file)){
+    cat("Parsing well scores table ...")
+    well_scores <- file
+  } else {
+    cat("Unable to read ")
+    
+  }
+  well_scores <- well_scores %>%
     dplyr::transmute(
       plate_id = Metadata_PlateID_Nuclei,
       well_id = Metadata_WellID_Nuclei,

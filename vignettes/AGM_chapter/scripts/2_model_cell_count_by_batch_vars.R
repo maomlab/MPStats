@@ -12,19 +12,29 @@ summary(model) %>%
   capture.output(file=paste0("product/cell_count_by_batch_vars_", MPStats::date_code(), ".txt"))
 
 
-plot <- MPStats::plot_cell_count_by_batch_vars(
+plot <- MPStats::plot_cell_count_by_batch_vars_scatter(
   well_scores=well_scores,
   subtitle="Human MCF7 cells -- compound-profiling experiment (BBBC021v1)")
 ggplot2::ggsave(
   plot=plot,
-  filename=paste0("product/cell_count_by_batch_vars_", MPStats::date_code(), ".pdf"),
+  filename=paste0("product/cell_count_by_batch_vars_scatter_", MPStats::date_code(), ".pdf"),
   width=8, height=5)
 ggplot2::ggsave(
   plot=plot,
-  filename=paste0("product/cell_count_by_batch_vars_", MPStats::date_code(), ".png"),
+  filename=paste0("product/cell_count_by_batch_vars_scatter_", MPStats::date_code(), ".png"),
   width=8, height=5)
 
 
-
+plot <- MPStats::plot_cell_count_by_batch_vars_density(
+  well_scores=well_scores,
+  subtitle="Human MCF7 cells -- compound-profiling experiment (BBBC021v1)")
+ggplot2::ggsave(
+  plot=plot,
+  filename=paste0("product/cell_count_by_batch_vars_density_", MPStats::date_code(), ".pdf"),
+  width=8, height=5)
+ggplot2::ggsave(
+  plot=plot,
+  filename=paste0("product/cell_count_by_batch_vars_density_", MPStats::date_code(), ".png"),
+  width=8, height=5)
 
 
