@@ -4,8 +4,7 @@ Version: 0.0.0.9000
 Title: Tools for analyzing Morphological Profiling data
 Description: Morphological profiling is an assay were cells are stained with
     multiple spectrally separated dyes and then imaged in high-throughput.
-    This package collects methods for analyzing pharmacological effects on cellular
-    features across platted cells.
+    This package collects methods for designing analyzing these types of experiments.
 Authors@R: person("Matthew", "O'Meara", email = "mattjomeara@gmail.com",
     role = c("aut", "cre"))
 URL: http://github.com/momeara/MPStats
@@ -19,8 +18,10 @@ Imports:
     dplyr (>= 0.8.3),
     stringr (>= 1.4.0),
     scales (>= 1.1.0),
+    gplot (>= 3.0.1.2),
     ggplot2 (>= 1.0.1),
-    drc (>= 3.0-1)
+    drc (>= 3.0-1),
+    seriation (>=1.2-7)
 Collage: 'geom_indicator.R',
     'read_well_scores.R',
     'plate_layout.R',
@@ -28,6 +29,7 @@ Collage: 'geom_indicator.R',
     'model_cell_count_by_batch_vars.R',
     'model_score_by_batch_vars.R',
     'plot_binomial_trial_credible_intervals.R',
+    'plot_feature_correlation_matrix.R'
     'plot_cell_count_by_batch_vars_scatter.R',
     'plot_cell_count_by_batch_vars_density.R',
     'plot_score_by_cell_count.R',
