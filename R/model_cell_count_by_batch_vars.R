@@ -1,7 +1,10 @@
 
+
+
+
 #' Model cell count by batch variables using a linear model
 #' 
-#' Here using a sqrt() transform to 
+#' Here using a sqrt() transform to make the response more normal
 #' 
 #' @param well_scores result of read_well_scores()
 #' @return "lm" object of model

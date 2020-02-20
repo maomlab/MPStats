@@ -2,12 +2,17 @@
 % Please edit documentation in R/read_compound_moa.R
 \name{read_compound_moa}
 \alias{read_compound_moa}
-\title{Read well scores table}
+\title{Read compound mechanism of action table}
 \usage{
-read_compound_moa(file)
+read_compound_moa(input)
 }
 \arguments{
-\item{filename}{path to compound mechanism of action csv, (e.g. AGM_moa.csv)}
+\item{input}{path to compound mechanism of action csv, (e.g. AGM_moa.csv) or
+data.frame with columns
+    compound      : chr    # name of compound
+    concentration : num    # 
+    moa           : chr    # detailed mechanism of action
+    moa2          : chr    # class of mechanism of action}
 }
 \value{
 compound_moa tibble::tibble with columns
@@ -18,5 +23,5 @@ compound_moa tibble::tibble with columns
     $ moa2          : chr  "other" "other" "other" "cytoskeleton" ...
 }
 \description{
-Read well scores table
+Read compound mechanism of action table
 }

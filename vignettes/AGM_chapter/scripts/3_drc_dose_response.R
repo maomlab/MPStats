@@ -29,6 +29,7 @@ ggplot2::ggsave(
   width=20)
 
 compound_moa %>%
+  dplyr::mutate(moa2 = ifelse(compound == "epothilone B", "cytoskeleton", moa2)) %>%
   plyr::d_ply("moa2", function(compounds){
     moa_type = compounds$moa2[1]
     cat("Plotting '", moa_type, "' compounds ...\n", sep="")

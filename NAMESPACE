@@ -3,6 +3,8 @@
 export(GeomIndicator)
 export(binomial_quantile)
 export(date_code)
+export(fit_brms_flat_score_by_dose)
+export(fit_brms_hill_score_by_dose)
 export(fit_drc_score_by_dose)
 export(geom_indicator)
 export(model_cell_count_by_batch_vars_lm)

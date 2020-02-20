@@ -25,9 +25,50 @@ plot_drc_score_by_dose <- function(well_scores, fits, subtitle=NULL){
       prob_positive_low = binomial_quantile(n_positive, cell_count, .025),
       prob_positive_high = binomial_quantile(n_positive, cell_count, .975)) %>%
     dplyr::ungroup()
+  
+  # mean and 95% credible intervals for cell count by compound dose on the sqrt scale
+  compound_cell_count <- well_scores %>%
+    dplyr::filter(!is_control) %>%
+    dplyr::group_by(log_dose, compound) %>%
+    dplyr::summarize(
+      mean = cell_count %>% mean %>% sqrt,
+      low = poisson_quantile(cell_count, .025) %>% sqrt,
+      high = poisson_quantile(cell_count, .975) %>% sqrt) %>%
+    dplyr::ungroup()
+  compound_cell_count_scale_factor <- compound_cell_count$high %>% max
+  compound_cell_count <- compound_cell_count %>%
+    dplyr::mutate(
+      scaled_mean = mean / compound_cell_count_scale_factor,
+      scaled_low = low / compound_cell_count_scale_factor,
+      scaled_high = high / compound_cell_count_scale_factor)
 
+    
   p <- ggplot2::ggplot() +
     ggplot2::theme_bw() +
+    # cell counts
+    ggplot2::geom_smooth(
+      data=compound_cell_count,
+      mapping=ggplot2::aes(
+        x=log_dose,
+        y=scaled_mean),
+      color="green",
+      size=1.5,
+      method="loess",
+      se=FALSE) +
+    ggplot2::geom_errorbar(
+      data=compound_cell_count,
+      mapping=ggplot2::aes(
+        x=log_dose,
+        ymin=scaled_low,
+        ymax=scaled_high),
+      color="darkgreen") +
+    ggplot2::geom_point(
+      data=compound_cell_count,
+      mapping=ggplot2::aes(
+        x=log_dose,
+        y=scaled_mean),
+      color="darkgreen") +
+    # scores
     ggplot2::geom_line(
       data=fits,
       mapping=ggplot2::aes(
@@ -40,12 +81,15 @@ plot_drc_score_by_dose <- function(well_scores, fits, subtitle=NULL){
       mapping=ggplot2::aes(
         x=log_dose,
         ymin=prob_positive_low,
-        ymax=prob_positive_high)) +
+        ymax=prob_positive_high),
+      color="darkblue") +
     ggplot2::geom_point(
       data=compound_dose_scores,
       mapping=ggplot2::aes(
         x=log_dose,
-        y=prob_positive)) +
+        y=prob_positive),
+      color="darkblue") +
+    # indicators
     geom_indicator(
       data=fits %>% dplyr::distinct(compound, p_value),
       mapping=ggplot2::aes(
@@ -61,6 +105,10 @@ plot_drc_score_by_dose <- function(well_scores, fits, subtitle=NULL){
     ggplot2::scale_y_continuous(
       "Score",
       limits=c(0,1),
-      labels=scales::percent_format()) +
+      labels=scales::percent_format(),
+      sec.axis = ggplot2::dup_axis(
+        name = "Cell Count",
+        breaks=c(0,10,20,30)/compound_cell_count_scale_factor,
+        labels=c(0,100,400,900))) +
     ggplot2::facet_wrap(~compound, scales="free_x")
 }
