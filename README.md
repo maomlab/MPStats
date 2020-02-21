@@ -1,5 +1,6 @@
 
-
+[logo]: MPStats_logo.png "MPStats Logo"
+"
 # Morphological Profiling Statistics
 
 ## Introduction
