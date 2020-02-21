@@ -21,8 +21,8 @@ Imports:
     gplot (>= 3.0.1.2),
     ggplot2 (>= 1.0.1),
     drc (>= 3.0-1),
-    seriation (>=1.2-7),
-    arrow (>=0.16.0.2)
+    seriation (>= 1.2-7),
+    arrow (>= 0.16.0.2)
 Collage: 'geom_indicator.R',
     'read_well_scores.R',
     'plate_layout.R',
