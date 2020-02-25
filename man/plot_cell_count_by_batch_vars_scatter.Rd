@@ -17,3 +17,10 @@ ggplot2 object with the lattice plot with a panel for each batch variable
 \description{
 For each batch variable, show a facet panel with sqrt(cell_count) by batch variable
 }
+\details{
+#' Modeling the cell count as a poisson random variable, taking the square root makes the
+distribution more normal.
+
+N.A. Thacker and P.A. Bromiley, The Effects of a Square Root Transform on a Poisson Distributed Quantity
+  Statistics and Segmentation Series, 2001-010, updated 2009, http://tina.wiau.man.ac.uk/tina-knoppix/tina-memo/2001-010.pdf
+}

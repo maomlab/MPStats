@@ -10,7 +10,8 @@ inst/doc
 *.Rds
 *~
 .DS_Store
-Icon[]
-
+Icon[
+]
+Icon
 vignettes/AGM_chapter/intermediate_data/*
 vignettes/AGM_chapter/product/*

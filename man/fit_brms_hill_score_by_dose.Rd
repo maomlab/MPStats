@@ -2,7 +2,7 @@
 % Please edit documentation in R/fit_brms_hill_score_by_dose.R
 \name{fit_brms_hill_score_by_dose}
 \alias{fit_brms_hill_score_by_dose}
-\title{brms hillill model for score by compound dose}
+\title{brms hill model for score by compound dose}
 \usage{
 fit_brms_hill_score_by_dose(well_scores)
 }

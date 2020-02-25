@@ -13,5 +13,5 @@ model_cell_count_by_batch_vars_lm(well_scores)
 "lm" object of model
 }
 \description{
-Here using a sqrt() transform to
+Here using a sqrt() transform to make the response more normal
 }
