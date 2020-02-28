@@ -15,7 +15,7 @@ Zprime <- function(positives, negatives) {
 #' dye used to identify it
 #'
 #' @export
-plot_Zprime_by_top_features <- function(cell_features, top_k_features){
+plot_Zprime_by_top_features <- function(cell_features, top_k_features=4){
 
   cell_feature_columns <- cell_features %>%
     colnames() %>%
@@ -76,7 +76,7 @@ plot_Zprime_by_top_features <- function(cell_features, top_k_features){
       ggplot2::geom_rect(xmin=-Inf, xmax=0, ymin=-Inf, ymax=Inf, fill="gray85") +
       ggplot2::geom_rect(xmin=0, xmax=0.5, ymin=-Inf, ymax=Inf, fill="gray90") +
       ggplot2::geom_rect(xmin=0.5, xmax=1, ymin=-Inf, ymax=Inf, fill="gray95") +
-      ggplot2::geom_hline(yintercept=c(1, 2, 3, 4), size=.5, color="grey92") +
+      ggplot2::geom_hline(yintercept=c(1:top_k_features), size=.5, color="grey92") +
       ggplot2::geom_vline(xintercept=c(-6, -4, -2, 0, 0.5, 1), size=.5, color="grey92") +
       ggplot2::geom_errorbarh(
         mapping=ggplot2::aes(
