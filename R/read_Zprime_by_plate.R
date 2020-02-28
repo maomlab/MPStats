@@ -24,7 +24,7 @@
 #'   n_positive : int  0 0 0 0 0 0 0 0 0 303 ...
 #'  
 #' @export
-read_well_scores <- function(input){
+read_Zprime_by_plate <- function(input){
   Zprime_by_plate <- readr::read_csv(
     input,
     col_types=readr::cols(
