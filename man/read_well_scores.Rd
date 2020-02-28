@@ -9,16 +9,6 @@ read_well_scores(input)
 read_well_scores(input)
 }
 \arguments{
-\item{input}{path to Zprime csv (e.g. Master55.csv) or
-data.frame with columns
-    Metadata_PlateID_Nuclei               : chr
-    Metadata_WellID_Nuclei                : chr
-    Children_Cells_Count_Nuclei           : num
-    Metadata_Image_Metadata_Compound      : chr
-    Metadata_Image_Metadata_Concentration : num
-    probPos                               : num
-    probNeg                               : num}
-
 \item{input}{path to well scores csv (e.g. ProbPos_CellCount_55Plates.csv) or
 data.frame with columns
     Metadata_PlateID_Nuclei               : chr

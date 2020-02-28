@@ -18,12 +18,13 @@ Imports:
     dplyr (>= 0.8.3),
     stringr (>= 1.4.0),
     scales (>= 1.1.0),
-    gplot (>= 3.0.1.2),
+    gplots (>= 3.0.1.2),
     ggplot2 (>= 1.0.1),
     drc (>= 3.0-1),
     seriation (>= 1.2-7),
     arrow (>= 0.16.0.2),
-    UpSetR (>= 1.4.0)
+    robustHD (>= 0.6.1),
+    patchwork (>= 1.0.0.9000)
 Collage: 'geom_indicator.R',
     'read_well_scores.R',
     'plate_layout.R',
@@ -31,7 +32,10 @@ Collage: 'geom_indicator.R',
     'model_cell_count_by_batch_vars.R',
     'model_score_by_batch_vars.R',
     'plot_binomial_trial_credible_intervals.R',
-    'plot_feature_correlation_matrix.R'
+    'plot_feature_correlation_matrix.R',
+    'plot_top_features_by_controls.R',
+    'plot_Zprime_by_dye.R',
+    'plot_Zprime_by_top_features.R',
     'plot_cell_count_by_batch_vars_scatter.R',
     'plot_cell_count_by_batch_vars_density.R',
     'plot_score_by_cell_count.R',
@@ -43,5 +47,5 @@ Collage: 'geom_indicator.R',
     'fit_brms_hill_score_by_dose.R',
     'plot_brms_score_by_dose.R',
     'util.R'
-RoxygenNote: 6.1.1
+RoxygenNote: 7.0.2
 Encoding: UTF-8
