@@ -33,7 +33,7 @@ ggplot2::ggsave(
   width=5, height=7)
 
 
-Zprime_plot <- MPStats::plot_Zprime_by_feature(cell_features)
+Zprime_plot <- MPStats::plot_Zprime_by_top_feature(cell_features)
 ggplot2::ggsave(
   plot=Zprime_plot,
   filename=paste0("product/Zprime_by_top_feature_", MPStats::date_code(), ".pdf"),

@@ -24,7 +24,8 @@ Imports:
     seriation (>= 1.2-7),
     arrow (>= 0.16.0.2),
     robustHD (>= 0.6.1),
-    patchwork (>= 1.0.0.9000)
+    patchwork (>= 1.0.0.9000),
+    princurve (>= 2.1.4)
 Collage: 'geom_indicator.R',
     'read_well_scores.R',
     'plate_layout.R',
@@ -47,6 +48,10 @@ Collage: 'geom_indicator.R',
     'fit_brms_flat_score_by_dose.R',
     'fit_brms_hill_score_by_dose.R',
     'plot_brms_score_by_dose.R',
+    'fit_principal_curves.R',
+    'plot_embeddd_cluster_principal_curves.R',
+    'plot_principal_curve_projections.R',
+    'geom_split_violin.R',
     'util.R'
 RoxygenNote: 7.0.2
 Encoding: UTF-8
