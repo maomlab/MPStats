@@ -21,11 +21,11 @@ cluster_label}
 \item{thin}{number of samples for each cluster_label to fit curve to
 if false, use the full dataset}
 
+\item{princurve_smoother}{default: lowess (see princurve::principal_curve)}
+
 \item{princurve_maxit}{default: 300       (see princurve::principal_curve)}
 
 \item{princurve_stretch}{default: 0       (see princurve::principal_curve)}
-
-\item{princurve_smoother}{default: lowess (see princurve::principal_curve)}
 }
 \value{
 tibble::tibble representing the principal curve for each cluster
