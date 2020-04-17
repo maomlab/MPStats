@@ -9,6 +9,7 @@ inst/doc
 .httr-oauth
 *.Rds
 *~
+\#*\#
 .DS_Store
 Icon[
 ]
