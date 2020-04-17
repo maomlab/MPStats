@@ -41,17 +41,17 @@ plot_principal_curve_projections <- function(
       geom_split_violin(
         data=cluster_principal_curves,
         mapping=ggplot2::aes(
-          x=factor(cluster_id),
-          y=lambda,
-          fill=condition)) +
+          x=factor(cluster_label),
+          y=princurve_lambda,
+          fill=Condition)) +
       ggplot2::coord_flip() +
       ggplot2::scale_x_discrete("Cluster") +
       ggplot2::scale_y_continuous("Principal Curve") +
       ggplot2::scale_fill_manual(
         "Control",
         values=c(
-            Positive="#224EDE",
-            Negative="#DEB23E")) +
+            `Positive Control`="#224EDE",
+            `Negative Control`="#DEB23E")) +
       ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE)) +
       ggplot2::ggtitle("Principal Curve Projection Density", subtitle=subtitle)
 }

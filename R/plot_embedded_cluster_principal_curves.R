@@ -42,12 +42,13 @@ plot_embedded_cluster_principal_curves <- function(
 
   embedding <- cluster_principal_curves %>%
     dplyr::select(UMAP_1, UMAP_2, cluster_label)
-    
+
   curves <- cluster_principal_curves %>%
     dplyr::group_by(cluster_label) %>%
     dplyr::group_modify(~if(thin && (thin < nrow(.))) dplyr::sample_n(., thin) else .) %>%
-    dplyr::ungroup() %>%
-    dplyr::select(princurve_1, princurve_2, cluster_label)
+    dplyr::arrange(princurve_lambda) %>%
+    dplyr::ungroup() %>%  
+    dplyr::select(princurve_1, princurve_2, cluster_label) 
 
   # plotting with ggplot2
   plot <- ggplot2::ggplot() +
@@ -60,7 +61,7 @@ plot_embedded_cluster_principal_curves <- function(
       data=curves,
       mapping=ggplot2::aes(
         x=princurve_1, y=princurve_2, group=factor(cluster_label)),
-      size=.5) +
+      size=.1) +
     ggplot2::scale_x_continuous(
       "UMAP_1",
       limits=UMAP_1_limits) +

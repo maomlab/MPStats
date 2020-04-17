@@ -93,3 +93,4 @@ fit_principal_curves <- function(
         princurve_order = fit$ord)
   })
 }
+
