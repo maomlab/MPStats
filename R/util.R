@@ -95,6 +95,31 @@ poisson_quantile <- function(count, p){
   qgamma(p=p, shape=sum(count), rate=length(count))
 }
 
+#' Univrsity of Michigan colors
+#' 
+#' https://med.umich.edu/branding/color.html
+#' @export
+umich_colors <- c(
+  blue = "#00274C",
+  maize = "#FFCB05",
+  umma_tan = "#DDC497",
+  soft_yellow = "#F2D384",
+  barton_beige = "#979467",
+  brown = "#7D6A56",
+  lsa_orange = "#BA5827",
+  cranberry = "#853754",
+  matthaei_violet = "#514E86",
+  south_u_blue = "#174992",
+  grey_rock = "#878A8F",
+  teal = "#20657E",
+  wave_field_green = "#B3AC17",
+  taubman_teal = "#00B5AF",
+  rackham_roof_green = "#00B5AF",
+  arboretum_blue = "#0174BB",
+  dusty_blue = "#9FB6BC",
+  grey_blue = "#465E85")
+  
+
 
 #' @importFrom magrittr %>%
 NULL
