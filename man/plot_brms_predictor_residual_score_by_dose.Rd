@@ -4,12 +4,8 @@
 \alias{plot_brms_predictor_residual_score_by_dose}
 \title{Plot the score as a function of compound dose for brms models}
 \usage{
-plot_brms_predictor_residual_score_by_dose(
-  well_scores,
-  flat_model,
-  hill_model,
-  subtitle = NULL
-)
+plot_brms_predictor_residual_score_by_dose(well_scores, flat_model,
+  hill_model, subtitle = NULL)
 }
 \arguments{
 \item{well_scores}{tibble::tibble as output by read_well_scores}

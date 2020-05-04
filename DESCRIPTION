@@ -53,5 +53,5 @@ Collage: 'geom_indicator.R',
     'plot_principal_curve_projections.R',
     'geom_split_violin.R',
     'util.R'
-RoxygenNote: 7.0.2
+RoxygenNote: 7.1.0
 Encoding: UTF-8
