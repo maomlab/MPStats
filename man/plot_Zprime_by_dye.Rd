@@ -4,16 +4,48 @@
 \alias{plot_Zprime_by_dye}
 \title{Plot Zprime score by Dye combination}
 \usage{
-plot_Zprime_by_dye(Zprime_by_plate, subtitle = NULL)
+plot_Zprime_by_dye(Zprime_by_plate, dye_set_separator = "_", subtitle = NULL)
 }
 \arguments{
-\item{Zprime_by_plate}{tibble::tibble}
+\item{Zprime_by_plate}{tibble::tibble with columns
+dye_set  : factor this should be in the order that they will be displayed
+           the name of the dye set should be a string of the individual dyes
+           separated by the <dye_set_separator>.
+Zprime   : Score to be plotted should be in (-Inf, 1) where
+           1 is perfect, .5-1 is good, 0-0.5 is poor, and < 1 is bad
+plate_id : Identifiers for different plates. The Zscores should be computed
+           separately for each plate and then these Zprime scores will be
+           aggregated to make the plot}
+
+\item{dye_set_separator}{separator to figure out what dyes make up the dye_set variable.
+Default so "_"}
 
 \item{subtitle}{string subtitle for plot}
 }
 \value{
 ggplot2 plot
+
+dye_plot <- MPStats::plot_Zprime_by_dye(Zprime_by_plate)
+ggplot2::ggsave(
+  plot=dye_plot,
+  filename=paste0("product/Zprime_by_dye_", MPStats::date_code(), ".pdf"),
+  width=4, height=6,
+  useDingbats=FALSE)
+ggplot2::ggsave(
+  plot=dye_plot,
+  filename=paste0("product/Zprime_by_dye_", MPStats::date_code(), ".png"),
+  width=4, height=6)
 }
 \description{
-Plot Zprime score by Dye combination
+This makes a plot like from the UpSetR package with two sections
+   The upper section is a dot plot with the Zprime score on the
+   y-axis and the dye set on the x-axis. The value for each dye set
+   is represented by a dot at the mean for each plate and error
+   bars as the standard error in the mean. The lower section
+   indicates which dyes are part of the dye_set. The y-axis give
+   each dye and and the x-axis is the dye_set lining up with the
+   dye_set on the upper section The values are represented as dots
+   for each dye that is in the dye set and a line from the first to
+   the last dye in the set. Columns across both sections alternate
+   and the rows in the bottom section alternate shading.
 }

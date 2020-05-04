@@ -9,9 +9,12 @@ inst/doc
 .httr-oauth
 *.Rds
 *~
+\#*\#
 .DS_Store
 Icon[
 ]
 Icon
+vignettes/AGM_chapter/raw_data/AGM_FeatureSet_RAW55.csv
 vignettes/AGM_chapter/intermediate_data/*
 vignettes/AGM_chapter/product/*
+Rplots.pdf
