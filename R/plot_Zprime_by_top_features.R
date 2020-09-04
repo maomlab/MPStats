@@ -15,7 +15,18 @@ Zprime <- function(positives, negatives) {
 #' dye used to identify it
 #'
 #' @export
-plot_Zprime_by_top_features <- function(cell_features, top_k_features=4){
+plot_Zprime_by_top_features <- function(
+  cell_features,
+  top_k_features=4,
+  plate_id_column=`Metadata_PlateID:Nuclei`,
+  condition_column=COND,
+  group_column=dye,
+  group_label=deparse(substitute(group_column)),
+  group_colors=c(
+        Hoechst="#4472C4",  # blue
+        Tubulin="#00B050",  # green
+        Actin="#ED3833")    # red
+){
 
   cell_feature_columns <- cell_features %>%
     colnames() %>%
@@ -27,23 +38,24 @@ plot_Zprime_by_top_features <- function(cell_features, top_k_features=4){
                !stringr::str_detect(column_name, "^Parent"),
                !stringr::str_detect(column_name, "^Children"),
                !stringr::str_detect(column_name, "^Number"),
-               !(column_name %in% c("COND", "Group_Index","ObjectNumber:Nuclei")),
+               !(column_name %in% c(
+                   deparse(substitute(condition_column)),
+                   "Group_Index",
+                   "ObjectNumber:Nuclei")),
                !stringr::str_detect(column_name, "^Location"))
 
     # compute over plate and then average
     Zprime_scores <- cell_features %>%
-      dplyr::filter(COND %in% c("PC", "NC")) %>%
-      dplyr::rename(
-        plate_id = `Metadata_PlateID:Nuclei`,
-        condition = COND) %>%
-      plyr::ddply("plate_id", function(plate_features){
-        cat("Computing Zprime scores for plate: ", plate_features$plate_id[1], "\n", sep="")
-        plyr::ldply(cell_feature_columns$column_name, function(feature_id){            
+      dplyr::filter(!!enquo(condition_column) %in% c("PC", "NC")) %>%
+      plyr::ddply(plate_id_column, function(plate_features){
+        plate_id <- plate_features[1, plate_id_column %>% substitute %>% deparse]
+        cat("Computing Zprime scores for plate: ", plate_id, "\n", sep="")
+        plyr::ldply(cell_feature_columns$column_name, function(feature_id){   
           positives <- plate_features %>%
-            dplyr::filter(condition == "PC") %>%
+            dplyr::filter(!!enquo(condition_column) == "PC") %>%
             magrittr::extract2(feature_id)
           negatives <- plate_features %>%
-            dplyr::filter(condition == "NC") %>%
+            dplyr::filter(!!enquo(condition_column) == "NC") %>%
             magrittr::extract2(feature_id)
           data.frame(
             feature_id=feature_id,
@@ -83,12 +95,12 @@ plot_Zprime_by_top_features <- function(cell_features, top_k_features=4){
           y=reorder(feature_name, Zprime_mean),
           xmin=Zprime_mean - Zprime_std_err,
           xmax=Zprime_mean + Zprime_std_err,
-          color=dye)) +
+          color=!!enquo(group_column))) +
       ggplot2::geom_point(
         mapping=ggplot2::aes(
           y=reorder(feature_name, Zprime_mean),
           x=Zprime_mean,
-          color=dye),
+          color=!!enquo(group_column)),
         size=3) +
       ggplot2::facet_wrap(                 
         facets=dplyr::vars(object),
@@ -102,10 +114,7 @@ plot_Zprime_by_top_features <- function(cell_features, top_k_features=4){
         breaks=c(-6, -4, -2, 0, 1),
         expand=c(0,0))  +
       ggplot2::scale_color_manual(
-      "Dye",
-      values=c(
-        Hoechst="#4472C4",  # blue
-        Tubulin="#00B050",  # green
-        Actin="#ED3833"))+  # red
+        group_label,
+        values=group_colors)+
       ggplot2::guides(fill = ggplot2::guide_legend(reverse = TRUE))
 }    
