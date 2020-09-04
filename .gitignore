@@ -20,5 +20,8 @@ vignettes/AGM_chapter/product/*
 vignettes/SARS-CoV-2/raw_data/*
 vignettes/SARS-CoV-2/intermediate_data/*
 vignettes/SARS-CoV-2/product/*
+vignettes/PAINS/raw_data/*
+vignettes/PAINS/intermediate_data/*
+vignnetes/PAINS/product/*
 Rplots.pdf
 *.parquet
