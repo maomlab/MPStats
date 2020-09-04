@@ -4,7 +4,8 @@
 \alias{binomial_variance}
 \title{Variance of bayesian estimator for binomial trial with flat prior}
 \usage{
-binomial_variance(n_positive, n_trials, prior_positive = 1, prior_negative = 1)
+binomial_variance(n_positive, n_trials, prior_positive = 1,
+  prior_negative = 1)
 }
 \arguments{
 \item{n_positive}{number of successes in binomial trial}
@@ -35,11 +36,11 @@ pseudo positive count and one pseudo negative count to the observation.
 \details{
 The variance of a Beta distribution is
 
-   var[Beta(a,b)] = a*b/((a+b)^2(a+b+1))
+var[Beta(a,b)] = a*b/((a+b)^2(a+b+1))
    
 so the variance of the posteriror is
 
-   var[posterior] = var[Beta(n+1,m+1)] = (n+1)(m+1)/((n+m+2)^2 * (n+m+3))
+var[posterior] = var[Beta(n+1,m+1)] = (n+1)(m+1)/((n+m+2)^2 * (n+m+3))
 
 Ref: https://stats.stackexchange.com/questions/185221/binomial-uniform-prior-bayesian-statistics
 }
