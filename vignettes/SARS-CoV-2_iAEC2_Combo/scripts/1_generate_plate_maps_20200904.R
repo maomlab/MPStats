@@ -2,15 +2,15 @@
 
 library(plyr)
 library(tidyverse)
-
+library(MPStats)
 
 
 
 treatments <- readr::read_tsv("raw_data/iAEC2_combination_treatments_20200904.tsv") %>%
     dplyr::mutate(IC50 = log10(IC50_nM) - 9)
-source("scripts/generate_combo_plate_maps.R")
+
 wells <- treatments %>%
-    generate_combination_plate_maps(
+    MPStats::generate_combination_plate_maps(
         n_rays_per_combination = 1,
         n_doses_per_ray = 8,
         n_replicas_per_dose = 3)
@@ -24,6 +24,6 @@ dplyr::bind_rows(
     data.frame
 
 wells %>% readr::write_tsv(
-    "product/iAC2_combination_plate_maps_20200904.tsv")
+    "product/iAC2_plate_maps_20200904.tsv")
 
 
