@@ -1,10 +1,12 @@
 
-
+library(plyr)
 library(tidyverse)
 library(arrow)
 
 source("scripts/get_cell_features.R")
+
 source("scripts/mount_S3_bucket.R")
+
 mount_S3_bucket()
 
 dataset_ids <- readr::read_tsv(
@@ -12,9 +14,9 @@ dataset_ids <- readr::read_tsv(
 
 command <- paste0("
 sudo cp -r ~/bucket_cellprofilerdata/PAINS/UMAP_embeddings/per_plate_into_48h_2M intermediate_data/
-sudo chmod a+r per_plate_into_48h_2M
-sudo chmod a+w per_plate_into_48h_2M
-mkdir per_plate_into_48h_2M/cell_metadata
+sudo chmod a+r intermediate_data/per_plate_into_48h_2M
+sudo chmod a+w intermediate_data/per_plate_into_48h_2M
+mkdir intermediate_data/per_plate_into_48h_2M/cell_metadata
 ")
 system(command)
 
