@@ -216,14 +216,14 @@ save(plate_map_2020A, file="intermediate_data/plate_map_2020A.Rdata")
 #############################################
 
 plate_map_2021A <- readxl::read_excel(
-    path="raw_data/plate_map_200515.xlsx",
-    sheet="2021A_Metadata") %>%
+    path = "raw_data/plate_map_200515.xlsx",
+    sheet = "2021A_Metadata") %>%
     dplyr::mutate(
-        Plate_Name=`Plate ID`,
+        Plate_Name = `Plate ID`,
         plate_id = "2021A",
         row = Well_ID %>%
             stringr::str_extract("^[A-Z]") %>%
-            purrr::map_int(~which(LETTERS==., arr.ind=T)),
+            purrr::map_int(~which(LETTERS == ., arr.ind = T)),
         column = Well_ID %>%
             stringr::str_extract("[0-9]+$") %>%
             as.integer(),
@@ -269,16 +269,16 @@ lf_labels <- c(
 
 plate_map_2021A <- plate_map_2021A %>%
     dplyr::mutate(
-        rem_label = factor(
+        hcq_label = factor(
             Hydroxychloroquine_Concentration,
-            levels=rem_levels,
-            labels=rem_labels),
+            levels = hcq_levels,
+            labels = hcq_labels),
         lf_label = factor(
             Lactoferrin_Concentration,
-            levels=lf_levels,
-            labels=lf_labels))
+            levels = lf_levels,
+            labels = lf_labels))
 
-save(plate_map_2021A, file="intermediate_data/plate_map_2021A.Rdata")
+save(plate_map_2021A, file = "intermediate_data/plate_map_2021A.Rdata")
 
 
 ######################
