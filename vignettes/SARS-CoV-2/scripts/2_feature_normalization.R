@@ -74,30 +74,33 @@ plate_feature_densities <- feature_columns %>%
     })
 plate_feature_densities <- plate_feature_densities %>%
     dplyr::mutate(feature_name = feature) %>%
-    tidyr::separate(col=feature, into=c("object", "measure_type", "measure", "channel"), sep="_")
+    tidyr::separate(
+        col = feature,
+        into = c("object", "measure_type", "measure", "channel"),
+        sep = "_")
 
 ###########################################
-cat("  Plotting AreaShape feature densities ...\n")        
+cat("  Plotting AreaShape feature densities ...\n")
 plot <- ggplot2::ggplot() +
   ggplot2::theme_bw() +
-  theme(legend.position="bottom") +
+  theme(legend.position = "bottom") +
   ggplot2::geom_line(
-    data=plate_feature_densities %>% dplyr::filter(measure_type == "AreaShape"),
-    mapping=ggplot2::aes(x=value, y=log10(density+1), color=object, group=feature_name),
-    size=1,
-    alpha=1) +
-  facet_wrap(~measure, scale="free") +
+    data = plate_feature_densities %>% dplyr::filter(measure_type == "AreaShape"),
+    mapping = ggplot2::aes(x = value, y = log10(density + 1), color = object, group = feature_name),
+    size = 1,
+    alpha = 1) +
+  facet_wrap(~measure, scale = "free") +
   ggplot2::scale_x_continuous("Feature Value") +
   ggplot2::scale_y_continuous("Log Density") +
-  ggplot2::ggtitle("AreaShape densities ", subtitle=paste0("Plate id: ", plate_id))
+  ggplot2::ggtitle("AreaShape densities ", subtitle = paste0("Plate id: ", plate_id))
 ggplot2::ggsave(
-  filename=paste0("product/figures/feature_densities/", plate_id, "_AreaShape_feature_densities_200501.pdf"),
-  plot=plot,
-  width=8,
-  height=8)
+  filename = paste0("product/figures/feature_densities/", plate_id, "_AreaShape_feature_densities_200501.pdf"),
+  plot = plot,
+  width = 8,
+  height = 8)
 
 
-cat("  Plotting Intensity feature densities ...\n")                
+cat("  Plotting Intensity feature densities ...\n")
 plot <- ggplot2::ggplot() +
   ggplot2::theme_bw() +
   theme(legend.position="bottom") +

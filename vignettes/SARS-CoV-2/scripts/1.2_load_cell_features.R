@@ -383,7 +383,7 @@ cell_features %>%
 cell_feature_columns_TS6h %>%
     readr::write_tsv("raw_data/cell_feature_columns_TS.tsv")
 cell_metadata_columns_TS %>%
-    readr::write_tsv("raw_data/cell_metadata_columns_TS.tsv")    
+    readr::write_tsv("raw_data/cell_metadata_columns_TS.tsv")
 
 
 cell_features %>% summary()

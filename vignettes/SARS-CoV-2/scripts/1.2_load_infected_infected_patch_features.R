@@ -30,9 +30,11 @@ h5_dataset <- hdf5r::H5File$new("raw_data/infected_patches/CPOutput/DefaultOUT.h
 
 # output path
 output_path <- "intermediate_data/infected_patch_1999B_2020A_2021A_20201017"
-dir.create(
-    path = output_path,
-    recursive = TRUE)
+if (!dir.exists(paths = output_path)) {
+    dir.create(
+        path = output_path,
+        recursive = TRUE)
+}
 
 
 
@@ -174,9 +176,30 @@ viral_feature_columns <- viral_features %>%
         Mean_Nuclei_Distance_Centroid_ViralObj,
         tidyselect::starts_with("RadialDistribution"),
         tidyselect::starts_with("Texture"),
-        -tidyselect::matches("_Center_")) %>%
+        # remove plate location features
+        -tidyselect::matches("_Center_"),
+        # remove low-variance features
+        -Mean_Nuclei_Distance_Centroid_ViralObj,
+        -AreaShape_EulerNumber,
+        -RadialDistribution_ZernikePhase_NP_0_0) %>%
     names() %>%
-    tibble::tibble(feature = ., transformation = "identity")
+    tibble::tibble(feature = .) %>%
+    tidyr::separate(
+        col = feature,
+        into = c("measure_type", "measure", "channel"),
+        sep = "_",
+        remove = FALSE,
+        extra = "merge") %>%
+    dplyr::mutate(
+        transform = dplyr::case_when(
+           # these should be log-transformed, but they have values <= 0 so use log1p
+           measure_type == "Intensity" ~ "log1p",
+           measure_type == "Texture" & measure %>% stringr::str_detect("Variance") ~ "log1p",
+           measure_type == "Texture" & measure == "SumAverage" ~ "log",
+           measure_type == "Texture" & measure == "Contrast" ~ "log1p",
+           measure_type == "RadialDistribution" & measure_type == "ZernikeMagnitude" ~ "log",
+           measure_type == "AreaShape" & measure == "Area" ~ "log",
+           TRUE ~ "identity"))
 viral_metadata_columns <- viral_features %>%
     dplyr::select(
         -tidyselect::any_of(viral_feature_columns$feature)) %>%
@@ -216,21 +239,27 @@ syn_nuc_metadata_columns <- syn_nuc_features %>%
 puncta_metadata_columns <- puncta_features %>%
     names() %>%
     tibble::tibble(feature = .)
+
 #
 # save feature and metadata columns
 #
 viral_feature_columns %>% readr::write_tsv(
     path = paste0(output_path, "/viral_feature_columns.tsv"))
+viral_feature_columns %>%
+    dplyr::mutate(transform = 'identity') %>%
+    readr::write_tsv(path = paste0(output_path, "/viral_feature_no_transform_columns.tsv"))
 viral_metadata_columns %>% readr::write_tsv(
     path = paste0(output_path, "/viral_metadata_columns.tsv"))
+
 nuclei_feature_columns %>% readr::write_tsv(
     path = paste0(output_path, "/nuclei_feature_columns.tsv"))
 nuclei_metadata_columns %>% readr::write_tsv(
-    path = paste0(output_path, "/syn_nuc_metadata_columns.tsv"))
+    path = paste0(output_path, "/nuclei_metadata_columns.tsv"))
+
 syn_nuc_feature_columns %>% readr::write_tsv(
-    path = paste0(output_path, "/nuclei_feature_columns.tsv"))
+    path = paste0(output_path, "/syn_nuc_feature_columns.tsv"))
 syn_nuc_metadata_columns %>% readr::write_tsv(
     path = paste0(output_path, "/syn_nuc_metadata_columns.tsv"))
+
 puncta_metadata_columns %>% readr::write_tsv(
     path = paste0(output_path, "/puncta_metadata_columns.tsv"))
-    

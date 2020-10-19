@@ -2,35 +2,35 @@
 library(plyr)
 library(tidyverse)
 library(arrow)
-library(carat)
+library(caret)
 
 data_path <- "intermediate_data/infected_patch_1999B_2020A_2021A_20201017"
 
 viral_features <- arrow::read_parquet(
     file = paste0(data_path, "/viral_features.parquet"))
 viral_feature_columns <- readr::read_tsv(
-    file = paste0(data_path, "viral_feature_columns.tsv"))
+    file = paste0(data_path, "/viral_feature_columns.tsv"))
 viral_metadata_columns <- readr::read_tsv(
-    file = paste0(data_path, "viral_metadata_columns.tsv"))
+    file = paste0(data_path, "/viral_metadata_columns.tsv"))
 
 nuclei_features <- arrow::read_parquet(
     file = paste0(data_path, "/nuclei_features.parquet"))
 nuclei_feature_columns <- readr::read_tsv(
-    path = paste0(data_path, "/nuclei_feature_columns.tsv"))
+    file = paste0(data_path, "/nuclei_feature_columns.tsv"))
 nuclei_metadata_columns <- readr::read_tsv(
-    path = paste0(data_path, "/syn_nuc_metadata_columns.tsv"))
+    file = paste0(data_path, "/nuclei_metadata_columns.tsv"))
 
 syn_nuc_features <- arrow::read_parquet(
     file = paste0(data_path, "/syn_nuc_features.parquet"))
 syn_nuc_feature_columns <- readr::read_tsv(
-    path = paste0(data_path, "/nuclei_feature_columns.tsv"))
+    file = paste0(data_path, "/syn_nuc_feature_columns.tsv"))
 syn_nuc_metadata_columns <- readr::write_tsv(
-    path = paste0(data_path, "/syn_nuc_metadata_columns.tsv"))
+    file = paste0(data_path, "/syn_nuc_metadata_columns.tsv"))
 
 puncta_features <- arrow::read_parquet(
     file = paste0(data_path, "/puncata_features.parquet"))
 puncta_metadata_columns <- readr::read_tsv(
-    path = paste0(data_path, "/puncta_metadata_columns.tsv"))
+    file = paste0(data_path, "/puncta_metadata_columns.tsv"))
 
 
 #########################
