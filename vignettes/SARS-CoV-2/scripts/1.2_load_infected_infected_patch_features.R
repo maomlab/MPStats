@@ -179,6 +179,7 @@ viral_feature_columns <- viral_features %>%
         # remove plate location features
         -tidyselect::matches("_Center_"),
         # remove low-variance features
+        -tidyselect::matches("RadialDistribution_ZernikePhase_.*_0"),
         -Mean_Nuclei_Distance_Centroid_ViralObj,
         -AreaShape_EulerNumber,
         -RadialDistribution_ZernikePhase_NP_0_0) %>%
