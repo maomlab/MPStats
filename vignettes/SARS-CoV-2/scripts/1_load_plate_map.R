@@ -1,14 +1,23 @@
 library(plyr)
-library(tidyverse)
+library(magrittr)
+library(DBI)
+options(tidyverse.quiet = TRUE)
+library(tidyverse, quietly=TRUE)
 library(readxl)
 library(RMySQL)
 library(magrittr)
 library(tictoc)
-library(arrow)
+library(arrow, quietly=TRUE, warn.conflicts = FALSE)
 
 
+plate_map_fname <- "raw_data/plate_map_200826.xlsx"
+plate_map_1999B_fname <- "raw_data/plate_map_1999B.xlsx"
+plate_map_2021A_fname <- "raw_data/plate_map_2021A.xlsx"
+
+
+cat("Loading plate 999A ...\n")
 plate_map_999A <- readxl::read_excel(
-    path="raw_data/plate_map_200507.xlsx",
+    path=plate_map_fname,
     sheet="999A_Metadata") %>%
     dplyr::mutate(
         master_plate_id = '999',
@@ -25,9 +34,9 @@ plate_map_999A <- readxl::read_excel(
         dose_nM = Concentration * 1000)
 plate_map_999A %>% save(file="intermediate_data/plate_map_999A.Rdata")
 
-
+cat("Loading top 140 hits from primary screen ...\n")
 hits_10XX <- readxl::read_excel(
-    path = "raw_data/plate_map_200507.xlsx",
+    path = plate_map_fname,
     sheet = "140_Compound_Hit_List") %>%
     dplyr::rename(
         master_plate_id = FDA_384_Barcode,
@@ -36,25 +45,25 @@ hits_10XX <- readxl::read_excel(
     dplyr::mutate(
         row = Well_ID %>%
             stringr::str_extract("^[A-Z]") %>%
-            purrr::map_int(~which(LETTERS == ., arr.ind = T)),
+            purrr::map_int(~ifelse(is.na(.), NA_integer_, which(LETTERS == ., arr.ind = T))),
         column = Well_ID %>%
             stringr::str_extract("[0-9]+$") %>%
             as.integer())
 hits_10XX %>% save(file = "intermediate_data/hits_10XX.Rdata")
 
-
+cat("Loading 2000 series dose response plates ...\n")
 plate_map_20XX <- dplyr::bind_rows(
     readxl::read_excel(
-        path="raw_data/plate_map_200507.xlsx",
-        sheet="2006A-2010A_Metadata") %>%
+        path = plate_map_fname,
+        sheet = "2006A-2010A_Metadata") %>%
         dplyr::rename(Compound = Compound_Name),    
     readxl::read_excel(
-        path="raw_data/plate_map_200507.xlsx",
-        sheet="2011A-2015A_Metadata") %>%
+        path = plate_map_fname,
+        sheet = "2011A-2015A_Metadata") %>%
         dplyr::rename(Compound = Compound_Name),
     readxl::read_excel(
-        path="raw_data/plate_map_200507.xlsx",
-        sheet="2016A-2019A_Metadata")) %>%
+        path = plate_map_fname,
+        sheet = "2016A-2019A_Metadata")) %>%
     dplyr::mutate(
         master_plate_id = Plate_Name %>%
             stringr::str_extract(".....$") %>%
@@ -78,8 +87,8 @@ save(plate_map_20XX, file="intermediate_data/plate_map_20XX.Rdata")
 ############################################
 ## Lactoferrin and Remdesivir Combo 1999B ##
 ############################################
-
-plate_map_1999B <- readxl::read_excel("raw_data/1999B_Metadata.xlsx") %>%
+cat("Loading lactoferrin Remdesivir Combo plate 1999B ... \n")
+plate_map_1999B <- readxl::read_excel(plate_map_1999B_fname) %>%
     select(-tidyselect::starts_with("...")) %>%
     dplyr::mutate(
         plate_id = Plate_ID,
@@ -145,10 +154,10 @@ save(plate_map_1999B, file="intermediate_data/plate_map_1999B.Rdata")
 ############################################
 ## Lactoferrin and Remdesivir Combo 2020A ##
 ############################################
-
+cat("Loading lactoferrin remdesivir combo plate 2020A ...\n")
 plate_map_2020A <- readxl::read_excel(
-    path="raw_data/plate_map_200507.xlsx",
-    sheet="2020A_Metadata") %>%
+    path = plate_map_fname,
+    sheet = "2020A_Metadata") %>%
     dplyr::mutate(
         plate_id = "2020A",
         row = Well_ID %>%
@@ -214,9 +223,9 @@ save(plate_map_2020A, file="intermediate_data/plate_map_2020A.Rdata")
 #############################################
 ## Lactoferrin and Chloroquine Combo 2021A ##
 #############################################
-
+cat("Loading lactoferrin chloroquine combo plate 2021A ...\n")
 plate_map_2021A <- readxl::read_excel(
-    path = "raw_data/plate_map_200515.xlsx",
+    path = plate_map_2021A_fname,
     sheet = "2021A_Metadata") %>%
     dplyr::mutate(
         Plate_Name = `Plate ID`,
@@ -284,9 +293,9 @@ save(plate_map_2021A, file = "intermediate_data/plate_map_2021A.Rdata")
 ######################
 # Time Series 202006 #
 ######################
-
+cat("Loading time series plate 202006 ...\n")
 plate_map_TS <-  readxl::read_excel(
-        path = "raw_data/plate_map_200706.xlsx",
+        path = plate_map_fname,
         sheet = "Time Series 202006") %>%
     dplyr::rename(Compound = Compound_Name) %>%
     dplyr::mutate(
@@ -301,16 +310,16 @@ plate_map_TS <-  readxl::read_excel(
             stringr::str_extract("[0-9]+$") %>%
             as.integer(),
         is_control = `Condition` %in% c("PC", "NC"),
-        time_point = `Time_Point`)
+        time_point = `20200616T154655`)
 save(plate_map_TS, file = "intermediate_data/plate_map_TS.Rdata")
 
 
 ######################
 # Time Series 202008 #
 ######################
-
+cat("Loading time series plate 202008 ...\n")
 plate_map_TS_202008 <-  readxl::read_excel(
-        path = "raw_data/plate_map_200826.xlsx",
+        path = plate_map_fname,
         sheet = "Time Series 202008") %>%
     dplyr::rename(Compound = Compound_Name) %>%
     dplyr::mutate(
