@@ -25,7 +25,9 @@ Imports:
     arrow (>= 0.16.0.2),
     robustHD (>= 0.6.1),
     patchwork (>= 1.0.0.9000),
-    princurve (>= 2.1.4)
+    princurve (>= 2.1.4),
+    RMySQL (>= 0.10.20),
+    tictoc (>= 1.0)
 Collage: 'geom_indicator.R',
     'read_well_scores.R',
     'plate_layout.R',
