@@ -31,7 +31,9 @@ plate_map_999A <- readxl::read_excel(
         column = Well_ID %>%
             stringr::str_extract("[0-9]+$") %>%
             as.integer(),
-        dose_nM = Concentration * 1000)
+        dose_nM = Concentration * 1000) %>%
+    dplyr::mutate(
+        COND = ifelse(COND == "JQ1", "Treatment", COND))
 plate_map_999A %>% save(file="intermediate_data/plate_map_999A.Rdata")
 
 cat("Loading top 140 hits from primary screen ...\n")
