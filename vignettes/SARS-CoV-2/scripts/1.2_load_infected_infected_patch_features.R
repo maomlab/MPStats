@@ -4,24 +4,23 @@ library(plyr)
 library(tidyverse)
 library(arrow)
 library(hdf5r)
-
-source("scripts/mount_S3_bucket.R")
+library(DBI)
+library(RSQLite)
 
 source("scripts/load_features_h5.R")
 
+load("intermediate_data/plate_map_999A.Rdata")
 load("intermediate_data/plate_map_1999B.Rdata")
 load("intermediate_data/plate_map_2020A.Rdata")
 load("intermediate_data/plate_map_2021A.Rdata")
 
-mount_S3_bucket()
 system("
 cd raw_data
 mkdir infected_patches
 cd infected_patches
-cp ~/bucket/CPOutput_DR_Covid19.tar .
+aws s3 cp s3://sextoncov19/CPOutput_DR_Covid19.tar .
 tar xvf CPOutput_DR_Covid19.tar
 ")
-
 
 # input data
 h5_dataset <- hdf5r::H5File$new("raw_data/infected_patches/CPOutput/DefaultOUT.h5", "r")
@@ -62,7 +61,7 @@ image_features <- h5_dataset %>%
         field_id = URL_NP %>% stringr::str_extract("F[0-9][0-9][0-9][0-9]") %>%
             stringr::str_replace("F", ""),
         row = floor((as.numeric(well_id) - 1) / 24) + 1,
-        column = mod((as.numeric(well_id) - 1), 24) + 1) %>%
+        column = ((as.numeric(well_id) - 1) %% 24) + 1) %>%
     dplyr::select(-URL_NP)
 
 viral_features <- h5_dataset %>% load_features_h5(
@@ -165,6 +164,7 @@ puncta_features %>%
         sink = paste0(output_path, "/puncta_features.parquet"))
 
 
+
 #########################################
 # identify feature and metadata columns #
 #########################################
@@ -264,3 +264,140 @@ syn_nuc_metadata_columns %>% readr::write_tsv(
 
 puncta_metadata_columns %>% readr::write_tsv(
     path = paste0(output_path, "/puncta_metadata_columns.tsv"))
+
+
+###################################
+# viral patch data for plate 999A #
+###################################
+
+system("
+mkdir raw_data/infected_patches
+")
+
+# output path
+output_path <- "intermediate_data/infected_patch_999A_20201112"
+if (!dir.exists(paths = output_path)) {
+    dir.create(
+        path = output_path,
+        recursive = TRUE)
+}
+
+
+# for some reason the SQL folder isn't working through the S3-fuse
+system("
+aws s3 cp s3://sextoncov19/SQL/SARS_ViralPheno.sql raw_data/infected_patches
+")
+
+# covert mysql dump to sqlite3 to read in with dbplyr
+# https://stackoverflow.com/questions/5164033/export-a-mysql-database-to-sqlite-database
+system("
+pushd ~/opt
+git clone https://github.com/dumblob/mysql2sqlite
+popd
+")
+
+system("
+~/opt/mysql2sqlite/mysql2sqlite raw_data/SARS_ViralPheno.sql | sqlite3 raw_data/infected_patches/SARS_ViralPheno.db3
+")
+
+con <- DBI::dbConnect(
+    drv = RSQLite::SQLite(),
+    dbname = "raw_data/infected_patches/SARS_ViralPheno.db3")
+
+cat("Tables in 'raw_data/infected_patches/SARS_ViralPheno.db3':")
+con %>% DBI::dbListTables() %>% print()
+
+image_features <- con %>%
+    dplyr::tbl("SARS_ViralPhenoPer_Image") %>%
+    dplyr::select(
+        ImageNumber,
+        URL_NP = Image_URL_NP) %>%
+    dplyr::collect(n=Inf) %>%
+    dplyr::mutate(
+        plate_id = URL_NP %>%
+            stringr::str_extract("[_].+Projection") %>%
+            stringr::str_replace("_", "") %>%
+            stringr::str_replace("/Projection", ""),
+        well_id = URL_NP %>% stringr::str_extract("W[0-9][0-9][0-9][0-9]") %>%
+            stringr::str_replace("W", ""),
+        field_id = URL_NP %>% stringr::str_extract("F[0-9][0-9][0-9][0-9]") %>%
+            stringr::str_replace("F", ""),
+        row = floor((as.numeric(well_id) - 1) / 24) + 1,
+        column = ((as.numeric(well_id) - 1) %% 24) + 1) %>%
+    dplyr::select(-URL_NP)
+               
+viral_features <- con %>%
+    dplyr::tbl("SARS_ViralPhenoPer_ViralObj") %>%
+    dplyr::collect(n=Inf) %>%
+    dplyr::rename_with(~stringr::str_replace(., "^ViralObj_", ""))
+
+nuclei_features <- con %>%
+    dplyr::tbl("SARS_ViralPhenoPer_Nuclei") %>%
+    dplyr::collect(n=Inf) %>%
+    dplyr::rename_with(~stringr::str_replace(., "^Nuclei_", ""))
+
+puncta_features <- con %>%
+    dplyr::tbl("SARS_ViralPhenoPer_puncta") %>%
+    dplyr::collect(n=Inf) %>%
+    dplyr::rename_with(~stringr::str_replace(., "^puncta_", ""))
+
+syn_nuc_features <- con %>%
+    dplyr::tbl("SARS_ViralPhenoPer_syn_nucs") %>%
+    dplyr::collect(n=Inf) %>%
+    dplyr::rename_with(~stringr::str_replace(., "^syn_nucs_", ""))
+
+
+#
+# join plate-maps
+#
+image_features <- image_features %>%
+    dplyr::left_join(
+        plate_map_999A %>%
+            dplyr::transmute(
+                plate_id = Plate_ID,
+                row, column,
+                condition = COND,
+                Compound, Concentration,
+                drug = Compound,
+                drug_units = Units,
+                drug_concentration = Concentration,
+                drug_label = Compound),
+        by = c("plate_id", "row", "column"))
+
+viral_features <- viral_features %>%
+    dplyr::left_join(
+        image_features,
+        by = c("ImageNumber"))
+            
+nuclei_features <- nuclei_features %>%
+    dplyr::left_join(
+        image_features,
+        by = c("ImageNumber"))
+            
+syn_nuc_features <- syn_nuc_features %>%
+    dplyr::left_join(
+        image_features,
+        by = c("ImageNumber"))
+
+puncta_features <- puncta_features %>%
+    dplyr::left_join(
+        image_features,
+        by = c("ImageNumber"))
+
+
+#
+# Save features
+#
+viral_features %>%
+    arrow::write_parquet(
+        sink = paste0(output_path, "/viral_features.parquet"))
+nuclei_features %>%
+    arrow::write_parquet(
+        sink = paste0(output_path, "/nuclei_features.parquet"))
+syn_nuc_features %>%
+    arrow::write_parquet(
+        sink = paste0(output_path, "/syn_nuc_features.parquet"))
+puncta_features %>%
+    arrow::write_parquet(
+        sink = paste0(output_path, "/puncta_features.parquet"))
+
