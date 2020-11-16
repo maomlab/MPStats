@@ -30,7 +30,7 @@ plate_map <- dplyr::bind_rows(
     treatment_label_2 = ifelse(
         SampleID2 == "DMSO",
         "DMSO",
-        paste0(SampleID1, " ", SampleID2_stock_conc_in_uM, " μM")),
+        paste0(SampleID2, " ", SampleID2_stock_conc_in_uM, " μM")),
     treatment_label = paste0(treatment_label_1, "\n", treatment_label_2))
 
 plate_map %>%
