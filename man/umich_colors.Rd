@@ -4,7 +4,9 @@
 \name{umich_colors}
 \alias{umich_colors}
 \title{Univrsity of Michigan colors}
-\format{An object of class \code{character} of length 18.}
+\format{
+An object of class \code{character} of length 18.
+}
 \usage{
 umich_colors
 }
