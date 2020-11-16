@@ -145,8 +145,6 @@ model <- brms::brm_multiple(
   combine = FALSE,
   save_model = "/tmp/model.stan")
 
-
-
 # get posterior intervals for parameters
 estimated_parameters <- model[[1]] %>%
   tidybayes::spread_draws(
