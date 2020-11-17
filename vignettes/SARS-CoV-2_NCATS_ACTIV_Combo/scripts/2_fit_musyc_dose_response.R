@@ -66,10 +66,16 @@ well_scores %>% dplyr::count(drug_combo)
 
 
 source("../../R/fit_MuSyC_score_by_dose.R")
-model <- well_scores %>%
-    dplyr::filter(drug_combo == "NCGC00687009-01_NCGC00388427-03") %>%
+
+synergy_model <- well_scores %>%
+    dplyr::filter(
+        drug_combo %in% c("NCGC00686670-01_NCGC00090774-08", "NCGC00686670-01_NCGC00388427-03")) %>%
     fit_MuSyC_score_by_dose(
         group_vars = vars(drug_combo),
-        verbose = TRUE,
-        stan_model_args = list(verbose = TRUE))
+        iter = 200,
+        control = NULL,
+        stan_model_args = list(verbose = TRUE),
+        model_evaluation_criteria = NULL,
+        open_progress = FALSE)
+
 

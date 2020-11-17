@@ -204,10 +204,10 @@ fit_MuSyC_score_by_dose <- function(
   E1_prior = brms::prior(beta(1, 1), nlpar = "E1", lb = 0, ub = 1),
   E2_prior = brms::prior(beta(1, 1), nlpar = "E2", lb = 0, ub = 1),
   E3_prior = brms::prior(beta(1, 1), nlpar = "E3", lb = 0, ub = 1),
-  C1_init = function() {as.array(rnorm(1, 0.5, 5))},
-  C2_init = function() {as.array(rnorm(1, 0.5, 5))},
-  s1_init = function() {as.array(rnorm(1, .1, 1.5))},
-  s2_init = function() {as.array(rnorm(1, .1, 1.5))},
+  C1_init = function() {as.array(runif(1, 0, 2))},
+  C2_init = function() {as.array(runif(1, 0, 2))},
+  s1_init = function() {as.array(runif(1, -0.1, 2))},
+  s2_init = function() {as.array(runif(1, -0.1, 2))},
   alpha_init = function() {as.array(runif(1, 0, 3))},
   E0_init = function() {as.array(rbeta(1, 1, 1))},
   E1_init = function() {as.array(rbeta(1, 1, 1))},
@@ -221,6 +221,7 @@ fit_MuSyC_score_by_dose <- function(
   control = list(
       adapt_delta = .99,
       max_treedepth = 12),
+  model_evaluation_criteria = c("loo", "bayes_R2"),
   ...) {
 
   if (is.data.frame(well_scores)) {
@@ -229,10 +230,11 @@ fit_MuSyC_score_by_dose <- function(
       dplyr::mutate(
         d1_scale_factor = max(dose1),
         d2_scale_factor = max(dose2)) %>%
-      tidyr::nest()
+    tidyr::nest() %>%
+    dplyr::ungroup()
   }
 
-  if(verbose){
+  if (verbose) {
       cat("Fitting MuSyC model\n")
   }
 
@@ -269,14 +271,14 @@ fit_MuSyC_score_by_dose <- function(
     inits = function() {
       list(
         b_C1 = C1_init,
-        b_C2 = C2_init(),
-        b_s1 = s1_init(),
-        b_s2 = s2_init(),
-        b_alpha = alpha_init(),
-        b_E0 = E0_init(),
-        b_E1 = E1_init(),
-        b_E2 = E2_init(),
-        b_E3 = E3_init())},
+        b_C2 = C2_init,
+        b_s1 = s1_init,
+        b_s2 = s2_init,
+        b_alpha = alpha_init,
+        b_E0 = E0_init,
+        b_E1 = E1_init,
+        b_E2 = E2_init,
+        b_E3 = E3_init)},
 #    stanvars = c(
 #        brms::stanvar(
 #            scode = "  real d1_scale_factor = max(dose1));",
@@ -299,23 +301,25 @@ fit_MuSyC_score_by_dose <- function(
     iter = iter,
     cores = cores,
     stan_model_args = stan_model_args,
-    control = control)
+    control = control,
+    ...)
 
-  # evalate fits
-  model <- model %>%
-    purrr::imap(function(model, i) {
-      group_index <- grouped_data[i, ] %>% dplyr::select(-data)
-      group_index_label <- paste0(
-          names(group_index), ": ", group_index, collapse = ", ")
-      cat("Evaluating model fit for ", group_index_label, "...\n", sep = "")
-      model <- model %>% brms::add_criterion(
-        criterion = c("loo", "bayes_R2"),
-        model_name = paste0("MuSyC:", group_index_label),
-        reloo = TRUE)
-      model
-    })
-
+  if (!is.null(model_evaluation_criteria)) {
+    # evalate fits
+    model <- model %>%
+      purrr::imap(function(model, i) {
+        group_index <- grouped_data[i, ] %>% dplyr::select(-data)
+        group_index_label <- paste0(
+            names(group_index), ": ", group_index, collapse = ", ")
+        cat("Evaluating model fit for ", group_index_label, "...\n", sep = "")
+        model <- model %>% brms::add_criterion(
+          criterion = model_evaluation_criteria,
+          model_name = paste0("MuSyC:", group_index_label),
+          reloo = TRUE)
+        model
+      })
+  }
   grouped_data %>%
     dplyr::mutate(
       model = model)
-  }
+}
