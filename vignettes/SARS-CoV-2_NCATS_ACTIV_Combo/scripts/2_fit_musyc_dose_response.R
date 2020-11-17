@@ -3,6 +3,14 @@
 library(plyr)
 library(tidyverse)
 library(MPStats)
+library(future)
+library(batchtools)
+
+reg = makeRegistry(NA)
+
+
+
+
 
 field_scores <- readr::read_tsv("intermediate_data/field_scores.tsv")
 
@@ -67,12 +75,11 @@ well_scores %>% dplyr::count(drug_combo)
 
 source("../../R/fit_MuSyC_score_by_dose.R")
 
+
+
 synergy_model <- well_scores %>%
-    dplyr::filter(
-        drug_combo %in% c("NCGC00686670-01_NCGC00090774-08", "NCGC00686670-01_NCGC00388427-03")) %>%
     fit_MuSyC_score_by_dose(
         group_vars = vars(drug_combo),
-        iter = 200,
         control = NULL,
         stan_model_args = list(verbose = TRUE),
         model_evaluation_criteria = NULL,
