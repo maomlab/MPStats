@@ -75,12 +75,29 @@ well_scores %>% dplyr::count(drug_combo)
 
 source("../../R/fit_MuSyC_score_by_dose.R")
 
+# NCGC00686670-01_NCGC00388427-03
+# 
+# Population-Level Effects: 
+#                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
+# E0_Intercept        0.09      0.00     0.09     0.09 1.00    11378    11549
+# C1_Intercept        0.21      0.00     0.20     0.21 1.00     9660    10386
+# E1_Intercept        0.00      0.00     0.00     0.00 1.00     9997     9891
+# s1_Intercept        0.51      0.01     0.50     0.53 1.00    10231     9325
+# C2_Intercept        0.52      0.02     0.51     0.57 1.00     4892     6563
+# E2_Intercept        0.07      0.00     0.06     0.07 1.00    12693    11212
+# s2_Intercept        2.10      1.48     0.56     6.04 1.00     4882     8430
+# alpha_Intercept     0.46      0.04     0.38     0.54 1.00     9402     9478
+# E3_Intercept        0.00      0.00     0.00     0.00 1.00    14399     9655
 
 
-synergy_model <- well_scores %>%
+
+
+synergy_model_c <- well_scores %>%
     fit_MuSyC_score_by_dose(
         group_vars = vars(drug_combo),
-        control = NULL,
+        control = list(
+            adapt_delta = .99,
+            max_treedepth = 12),
         stan_model_args = list(verbose = TRUE),
         model_evaluation_criteria = NULL,
         open_progress = FALSE)
