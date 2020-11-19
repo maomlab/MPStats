@@ -4,12 +4,37 @@
 \alias{plot_checkerboard_score_by_dose}
 \title{Plot dose-response checkerboard}
 \usage{
-plot_checkerboard_score_by_dose(well_scores, contour_color = "gold")
+plot_checkerboard_score_by_dose(
+  well_scores,
+  treatment_1_label,
+  treatment_2_label,
+  treatment_1_units,
+  treatment_2_units,
+  plot_zero_dose = TRUE,
+  contour_color = "gold"
+)
 }
 \arguments{
 \item{well_scores}{data.frame with columns [dose_1, dose_2, score]}
 
-\item{contour_color}{}
+\item{treatment_1_label}{used to make default title and axis labels}
+
+\item{treatment_2_label}{used to make default title and axis labels}
+
+\item{treatment_1_units}{used to make default axis labels}
+
+\item{treatment_2_units}{used to make default axis labels}
+
+\item{plot_zero_dose}{plotted on the log scale, zero doses would be
+at -Inf, so to show them on the plot, add them as with a slight
+separation on the axis.}
+
+\item{contour_color}{default 'gold'}
+}
+\value{
+ggplot2 plot with ligt-blue to dark-blue tiles the dose
+    response. Individual plot elemenecs can be over-written and the
+    plot can be saved with ggplot2::ggsave()
 }
 \description{
 Plot dose-response checkerboard

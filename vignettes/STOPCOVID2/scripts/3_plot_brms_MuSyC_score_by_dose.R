@@ -28,7 +28,7 @@ E0 <- data_raw %>%
     E0 = median(Raw_Percent_Infected/100)) %>%
   magrittr::extract2("E0")
 
-data<- data_raw %>%
+data <- data_raw %>%
   dplyr::filter(Condition != "PC") %>%
   dplyr::transmute(
     
@@ -284,7 +284,7 @@ MPStats::plot_checkerboard_score_by_dose(
       group = .draw),
     color = "purple",
     size = .3) +
-  ggplot2::ggtitle("Fluvoxamine vs. Lactoferrin Infectivity") +
+   ggplot2::ggtitle("Fluvoxamine vs. Lactoferrin Infectivity") +
   checkerboard_scales
   
 
