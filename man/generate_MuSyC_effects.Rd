@@ -44,29 +44,29 @@ generate_MuSyC_effects(
 \item{E2}{drug 2 maximum effect}
 
 \item{beta}{synergistic efficacy
-percent increase in a drug combination’s effect
-beyond the most efficacious single drug.
- 
-beta > 0 => synergistic efficacy
-  the effect at the maximum concentration of both drugs (E3) exceeds the
-  maximum effect of either drug alone (E1 or E2)
-      
-beta < 0 => antagonistic efficacy
-  at least one or both drugs are more efficacious as
-  single agents than in combination}
+   percent increase in a drug combination’s effect
+   beyond the most efficacious single drug.
 
-\item{alpha1}{synergistic potency 
+   beta > 0 => synergistic efficacy
+     the effect at the maximum concentration of both drugs (E3) exceeds the
+     maximum effect of either drug alone (E1 or E2)
+
+   beta < 0 => antagonistic efficacy
+     at least one or both drugs are more efficacious as
+     single agents than in combination}
+
+\item{alpha1}{synergistic potency
 how the effective dose of drug 1
 is altered by the presence of drug 2}
 
-\item{alpha2}{synergistic potency 
+\item{alpha2}{synergistic potency
    how the effective dose of drug 2
    is altered by the presence of drug 1
-   
+
    alpha > 1 => synergistic potency
      the EC50 decreases because of the addition of the other drug,
      corresponding to an increase in potency
-     
+
    0 <= alpha < 1 => antagonistic potency
      the EC50 of the drug increases as a result of the other drug,
      corresponding to a decrease in potency

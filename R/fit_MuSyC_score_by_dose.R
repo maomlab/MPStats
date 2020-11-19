@@ -60,18 +60,13 @@ generate_MuSyC_effects <- function(
   d1,
   d2,
   E0,
-  h1, C1, E1,
-  h2, C2, E2,
+  s1, C1, E1,
+  s2, C2, E2,
   alpha,
-  E3 = NULL,
-  beta = NULL) {
+  E3) {
 
-  if(!is.null(beta)){
-    E3 <- min(E1, E2) - beta * min(E1, E2)
-  } else if(is.null(E3)){
-    stop("either E3 or beta must be non-null")
-  }
-
+  h1 <- s1 * (4 * C1) / (E0 + E1)
+  h2 <- s2 * (4 * C2) / (E0 + E2)
   numerator <-
     C1^h1 * C2^h2 * E0 +
     d1^h1 * C2^h2 * E1 +
