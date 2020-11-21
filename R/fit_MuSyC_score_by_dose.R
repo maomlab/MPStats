@@ -187,7 +187,7 @@ generate_MuSyC_effects <- function(
 #'   =  h2 * (E0 + E2) / (4 * C2)
 #'
 #'
-#' @export
+#'@export
 fit_MuSyC_score_by_dose <- function(
   well_scores,
   group_vars = vars(compound),
@@ -195,20 +195,20 @@ fit_MuSyC_score_by_dose <- function(
   C2_prior = brms::prior(normal(0.5, 0.5), nlpar = "C2", lb = 0),
   s1_prior = brms::prior(normal(1, 3), nlpar = "s1", lb = -.1),
   s2_prior = brms::prior(normal(1, 3), nlpar = "s2", lb = -.1),
-  alpha_prior = brms::prior(normal(0, 2), nlpar = "alpha", lb = 0),
+  log10alpha_prior = brms::prior(normal(0, 2), nlpar = "log10alpha", lb = 0),
   E0_prior = brms::prior(beta(1, 1), nlpar = "E0", lb = 0, ub = 1),
   E1_prior = brms::prior(beta(1, 1), nlpar = "E1", lb = 0, ub = 1),
   E2_prior = brms::prior(beta(1, 1), nlpar = "E2", lb = 0, ub = 1),
-  E3_prior = brms::prior(beta(1, 1), nlpar = "E3", lb = 0, ub = 1),
+  E3_alpha_prior = brms::prior(normal(0, 2), nlpar = "E3alpha", lb = 0),
   C1_init = function() {as.array(runif(1, 0, 2))},
   C2_init = function() {as.array(runif(1, 0, 2))},
   s1_init = function() {as.array(runif(1, -0.1, 2))},
   s2_init = function() {as.array(runif(1, -0.1, 2))},
-  alpha_init = function() {as.array(runif(1, 0, 3))},
+  log10alpha_init = function() {as.array(runif(1, 0, 3))},
   E0_init = function() {as.array(rbeta(1, 1, 1))},
   E1_init = function() {as.array(rbeta(1, 1, 1))},
   E2_init = function() {as.array(rbeta(1, 1, 1))},
-  E3_init = function() {as.array(rbeta(1, 1, 1))},
+  E3_alpha_init = function() {as.array(rnorm(1, 0, 2))},
   combine = FALSE,
   verbose = FALSE,
   iter = 8000,
@@ -240,17 +240,17 @@ fit_MuSyC_score_by_dose <- function(
         C1^h1 * C2^h2 * E0 +
         d1^h1 * C2^h2 * E1 +
         C1^h1 * d2^h2 * E2 +
-        d1^h1 * d2^h2 * E3 * 10^alpha
+        d1^h1 * d2^h2 * E3alpha
       ) / (
         C1^h1 * C2^h2 +
         d1^h1 * C2^h2 +
         C1^h1 * d2^h2 +
-        d1^h1 * d2^h2 * 10^alpha),
+        d1^h1 * d2^h2 * 10^log10alpha),
       brms::nlf(d1 ~ dose1 / d1_scale_factor),
       brms::nlf(d2 ~ dose2 / d2_scale_factor),
       brms::nlf(h1 ~ s1 * (4 * C1) / (E0 + E1)),
       brms::nlf(h2 ~ s2 * (4 * C2) / (E0 + E2)),
-      E0 + C1 + E1 + s1 + C2 + E2 + s2 + alpha + E3 ~ 1,
+      E0 + C1 + E1 + s1 + C2 + E2 + s2 + log10alpha + E3alpha ~ 1,
       nl = TRUE),
     data = grouped_data$data,
     family = binomial("identity"),
@@ -259,22 +259,22 @@ fit_MuSyC_score_by_dose <- function(
       C2_prior,
       s1_prior,
       s2_prior,
-      alpha_prior,
+      log10alpha_prior,
       E0_prior,
       E1_prior,
       E2_prior,
-      E3_prior),
+      E3_alpha_prior),
     inits = function() {
       list(
         b_C1 = C1_init,
         b_C2 = C2_init,
         b_s1 = s1_init,
         b_s2 = s2_init,
-        b_alpha = alpha_init,
+        b_log10alpha = log10alpha_init,
         b_E0 = E0_init,
         b_E1 = E1_init,
         b_E2 = E2_init,
-        b_E3 = E3_init)},
+        b_E3alpha = E3_alpha_init)},
 #    stanvars = c(
 #        brms::stanvar(
 #            scode = "  real d1_scale_factor = max(dose1));",
