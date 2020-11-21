@@ -11,20 +11,20 @@ fit_MuSyC_score_by_dose(
   C2_prior = brms::prior(normal(0.5, 0.5), nlpar = "C2", lb = 0),
   s1_prior = brms::prior(normal(1, 3), nlpar = "s1", lb = -0.1),
   s2_prior = brms::prior(normal(1, 3), nlpar = "s2", lb = -0.1),
-  alpha_prior = brms::prior(normal(0, 2), nlpar = "alpha", lb = 0),
+  log10alpha_prior = brms::prior(normal(0, 2), nlpar = "log10alpha", lb = 0),
   E0_prior = brms::prior(beta(1, 1), nlpar = "E0", lb = 0, ub = 1),
   E1_prior = brms::prior(beta(1, 1), nlpar = "E1", lb = 0, ub = 1),
   E2_prior = brms::prior(beta(1, 1), nlpar = "E2", lb = 0, ub = 1),
-  E3_prior = brms::prior(beta(1, 1), nlpar = "E3", lb = 0, ub = 1),
+  E3_alpha_prior = brms::prior(normal(0, 2), nlpar = "E3alpha", lb = 0),
   C1_init = function() {     as.array(runif(1, 0, 2)) },
   C2_init = function() {     as.array(runif(1, 0, 2)) },
   s1_init = function() {     as.array(runif(1, -0.1, 2)) },
   s2_init = function() {     as.array(runif(1, -0.1, 2)) },
-  alpha_init = function() {     as.array(runif(1, 0, 3)) },
+  log10alpha_init = function() {     as.array(runif(1, 0, 3)) },
   E0_init = function() {     as.array(rbeta(1, 1, 1)) },
   E1_init = function() {     as.array(rbeta(1, 1, 1)) },
   E2_init = function() {     as.array(rbeta(1, 1, 1)) },
-  E3_init = function() {     as.array(rbeta(1, 1, 1)) },
+  E3_alpha_init = function() {     as.array(rnorm(1, 0, 2)) },
   combine = FALSE,
   verbose = FALSE,
   iter = 8000,
@@ -50,7 +50,7 @@ dplyr::vars(...) columns to over when fitting synergy model}
 
 \item{s2_prior}{prior distribution for d(Ed)/d(d2) when d1=0, d2=d2_IC50}
 
-\item{alpha_prior}{prior distribution for alpha synergy parameter}
+\item{log10alpha_prior}{prior distribution for alpha synergy parameter}
 
 \item{E0_prior}{prior distribution for Ed when d1=0, d2=0}
 
@@ -58,7 +58,7 @@ dplyr::vars(...) columns to over when fitting synergy model}
 
 \item{E2_prior}{prior distribution for Ed when d1=0, d2=Inf}
 
-\item{E3_prior}{prior distribution for Ed when d1=Inf, d2=Inf}
+\item{E3_alpha_prior}{prior distribution for Ed scaled by alpha when d1=Inf, d2=Inf}
 
 \item{C1_init}{initial sampling distribution for the C1 parameter}
 
@@ -68,7 +68,7 @@ dplyr::vars(...) columns to over when fitting synergy model}
 
 \item{s2_init}{initial sampling distribution for the s2 parameter}
 
-\item{alpha_init}{intial sampling distribution for the alpha parameter}
+\item{log10alpha_init}{intial sampling distribution for the alpha parameter}
 
 \item{E0_init}{initial sampling distribution for the E0 parameter}
 
@@ -76,7 +76,7 @@ dplyr::vars(...) columns to over when fitting synergy model}
 
 \item{E2_init}{initial sampling distribution for the E2 parameter}
 
-\item{E3_init}{initial sampling distribution for the E3 parameter}
+\item{E3_alpha_init}{initial sampling distribution for the E3 parameter}
 
 \item{combine}{combine the grouped models into a single brms model}
 

@@ -18,12 +18,12 @@
 #' @param E0 effect with no drug treatment
 #'
 #' # params for drug 1 by it self
-#' @param h1 drug 1 hill slope
+#' @param s1 drug 1 hill slope
 #' @param C1 drug 1 EC50
 #' @param E1 drug 1 maximum effect
 #'
 #' # params for drug 2 by it self
-#' @param h2 drug 2 hill slope
+#' @param s2 drug 2 hill slope
 #' @param C2 drug 2 EC50
 #' @param E2 drug 2 maximum effect
 #'
@@ -90,20 +90,20 @@ generate_MuSyC_effects <- function(
 #' @param C2_prior prior distribution for Ed when d1=0, d2=d2_IC50
 #' @param s1_prior prior distribution for d(Ed)/d(d1) when d1=d1_IC50, d2=0
 #' @param s2_prior prior distribution for d(Ed)/d(d2) when d1=0, d2=d2_IC50
-#' @param alpha_prior prior distribution for alpha synergy parameter
+#' @param log10alpha_prior prior distribution for alpha synergy parameter
 #' @param E0_prior prior distribution for Ed when d1=0, d2=0
 #' @param E1_prior prior distribution for Ed when d1=Inf, d2=0
 #' @param E2_prior prior distribution for Ed when d1=0, d2=Inf
-#' @param E3_prior prior distribution for Ed when d1=Inf, d2=Inf
+#' @param E3_alpha_prior prior distribution for Ed scaled by alpha when d1=Inf, d2=Inf
 #' @param C1_init initial sampling distribution for the C1 parameter
 #' @param C2_init initial sampling distribution for the C2 parameter
 #' @param s1_init initial sampling distribution for the s1 parameter
 #' @param s2_init initial sampling distribution for the s2 parameter
-#' @param alpha_init intial sampling distribution for the alpha parameter
+#' @param log10alpha_init intial sampling distribution for the alpha parameter
 #' @param E0_init initial sampling distribution for the E0 parameter
 #' @param E1_init initial sampling distribution for the E1 parameter
 #' @param E2_init initial sampling distribution for the E2 parameter
-#' @param E3_init initial sampling distribution for the E3 parameter
+#' @param E3_alpha_init initial sampling distribution for the E3 parameter
 #' @param combine combine the grouped models into a single brms model
 #' @param verbose verbose output
 #'
