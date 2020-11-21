@@ -1,10 +1,35 @@
-
-
 library(plyr)
 library(tidyverse)
 library(MPStats)
+library(brms)
 library(future)
+
+Sys.setenv(DEBUGME = "batchtools")
 library(batchtools)
+library(future.batchtools)
+
+
+
+future::plan(
+    list(
+        # for each drug combo
+        tweak(
+            future.batchtools::batchtools_slurm,
+                resources = list(
+                    account = "maom99",
+                    ntasks=1,
+                    ncpus=1L,
+                    memory="10GB"),
+            template = "../../inst/batchtools.greatlakes.tmpl"),
+        tweak(
+            future.batchtools::batchtools_slurm,
+                resources = list(
+                    account = "maom99",
+                    ntasks=1,
+                    ncpus=1L,
+                    memory="2GB"),
+            template = "../../inst/batchtools.greatlakes.tmpl")))
+
 
 field_scores <- readr::read_tsv("intermediate_data/field_scores.tsv")
 
@@ -47,7 +72,7 @@ well_scores <- field_scores %>%
         cat("  n DMSO treatments: ", nrow(DMSO_treatments) / 16, "\n", sep = "")
         cat("  n drug1 treatments: ", nrow(drug1_treatments) / 16, "\n", sep = "")
         cat("  n drug2 treatments: ", nrow(drug2_treatments) / 16, "\n", sep = "")
-        cat("  n combo treatments: ", nrow(combo_treatments) / 16, "\n", sep = "")        
+        cat("  n combo treatments: ", nrow(combo_treatments) / 16, "\n", sep = "")
         dplyr::bind_rows(
             DMSO_treatments,
             drug1_treatments,
@@ -126,7 +151,7 @@ synergy_model_c <- well_scores %>%
 
 synergy_model_v2 <- well_scores %>%
     dplyr::filter(drug_combo == "NCGC00686694-02_NCGC00090774-08") %>%
-    fit_MuSyC_score_by_dose(
+    MPStats::fit_MuSyC_score_by_dose(
         group_vars = vars(drug_combo),
         E0_prior = brms::prior(student_t(200, 0, .2), nlpar = "E0", lb=0, ub=1),
         E1_prior = brms::prior(student_t(200, 0, .2), nlpar = "E1", lb=0, ub=1),
@@ -135,18 +160,22 @@ synergy_model_v2 <- well_scores %>%
         E0_init = function() {as.array(brms::rstudent_t(200, 0, .2))},
         E1_init = function() {as.array(brms::rstudent_t(200, 0, .2))},
         E2_init = function() {as.array(brms::rstudent_t(200, 0, .2))},
-        E3_init = function() {as.array(brms::rstudent_t(200, 0, .2))},        
-        #control = list(
-        #    adapt_delta = .99,
-        #    max_treedepth = 12),
+        E3_init = function() {as.array(brms::rstudent_t(200, 0, .2))},
+        control = list(
+            adapt_delta = .99,
+            max_treedepth = 12),
+        chains = 50,
+        iter = 2000,
         stan_model_args = list(verbose = TRUE),
         model_evaluation_criteria = NULL,
-        open_progress = FALSE)
+        open_progress = FALSE,
+        silent = FALSE,
+        future = TRUE)
 
 
 # NCGC00686670-01_NCGC00388427-03
-# 
-# Population-Level Effects: 
+#
+# Population-Level Effects:
 #                 Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
 # E0_Intercept        0.09      0.00     0.09     0.09 1.00    11378    11549
 # C1_Intercept        0.21      0.00     0.20     0.21 1.00     9660    10386
@@ -191,7 +220,7 @@ estimated_parameters <- synergy_model_c %>%
                 drug_combo = combo_model$drug_combo)
     }) %>%
     dplyr::ungroup()
-    
+
 
 estimated_parameters %>%
     readr::write_tsv("product/estiamted_parameters_20201118.tsv")

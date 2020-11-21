@@ -22,6 +22,8 @@ Imports:
     gplots (>= 3.0.1.2),
     ggplot2 (>= 1.0.1),
     drc (>= 3.0-1),
+    drcData (>= 1.0.2),
+    brms (>= 2.14.2),
     arrow (>= 0.16.0.2),
     robustHD (>= 0.6.1),
     patchwork (>= 1.0.0.9000)
@@ -31,7 +33,13 @@ Suggests:
     RMySQL (>= 0.10.17),
     hdf5r (>= 1.3.3),
     batchtools (>= 0.9.14),
+    future.batchtools (>= 0.9.0),
     shinystan (>= 2.5.0)
+Remotes:
+    collectivemedia/tictoc,
+    DoseResponse/drc,
+    DoseResponse/drcData,    
+    thomasp85/patchwork
 Collage: 'geom_indicator.R',
     'read_well_scores.R',
     'plate_layout.R',
@@ -61,5 +69,5 @@ Collage: 'geom_indicator.R',
     'plot_principal_curve_projections.R',
     'geom_split_violin.R',
     'util.R'
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Encoding: UTF-8

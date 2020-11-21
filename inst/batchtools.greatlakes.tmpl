@@ -26,8 +26,10 @@ log.file = fs::path_expand(log.file)
 #SBATCH --job-name=<%= job.name %>
 #SBATCH --output=<%= log.file %>
 #SBATCH --error=<%= log.file %>
-#SBATCH --time=<%= ceiling(resources$walltime / 60) %>
+#SBATCH --time=04:00:00
+##SBATCH --time=<%= hms::hms(minutes=resources$walltime) %>
 #SBATCH --ntasks=1
+#SBATCH --account=<%= resources$account %>
 #SBATCH --cpus-per-task=<%= resources$ncpus %>
 #SBATCH --mem-per-cpu=<%= resources$memory %>
 <%= if (!is.null(resources$partition)) sprintf(paste0("#SBATCH --partition='", resources$partition, "'")) %>

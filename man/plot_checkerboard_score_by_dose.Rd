@@ -5,7 +5,7 @@
 \title{Plot dose-response checkerboard}
 \usage{
 plot_checkerboard_score_by_dose(
-  well_scores,
+  treatment_scores,
   treatment_1_label,
   treatment_2_label,
   treatment_1_units,
@@ -15,7 +15,7 @@ plot_checkerboard_score_by_dose(
 )
 }
 \arguments{
-\item{well_scores}{data.frame with columns [dose_1, dose_2, score]}
+\item{treatment_scores}{data.frame with columns [dose1, dose2, score]}
 
 \item{treatment_1_label}{used to make default title and axis labels}
 

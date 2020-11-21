@@ -185,8 +185,9 @@ generate_MuSyC_effects <- function(
 #' Evaluate at d2 = C2:
 #'   =  (E0 + E2) * h2 * C2^(2*h2-1) / [4*C2^(2*h2))]
 #'   =  h2 * (E0 + E2) / (4 * C2)
-
-
+#'
+#'
+#' @export
 fit_MuSyC_score_by_dose <- function(
   well_scores,
   group_vars = vars(compound),
