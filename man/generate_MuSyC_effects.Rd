@@ -5,20 +5,7 @@
 \title{Drug Synergy
 Musyc Drug Synergy model}
 \usage{
-generate_MuSyC_effects(
-  d1,
-  d2,
-  E0,
-  h1,
-  C1,
-  E1,
-  h2,
-  C2,
-  E2,
-  alpha,
-  E3 = NULL,
-  beta = NULL
-)
+generate_MuSyC_effects(d1, d2, E0, s1, C1, E1, s2, C2, E2, alpha, E3)
 }
 \arguments{
 \item{d1}{Dose of drug 1}
@@ -29,19 +16,19 @@ generate_MuSyC_effects(
 
 # params for drug 1 by it self}
 
-\item{h1}{drug 1 hill slope}
-
 \item{C1}{drug 1 EC50}
 
 \item{E1}{drug 1 maximum effect
 
 # params for drug 2 by it self}
 
-\item{h2}{drug 2 hill slope}
-
 \item{C2}{drug 2 EC50}
 
 \item{E2}{drug 2 maximum effect}
+
+\item{h1}{drug 1 hill slope}
+
+\item{h2}{drug 2 hill slope}
 
 \item{beta}{synergistic efficacy
    percent increase in a drug combination’s effect

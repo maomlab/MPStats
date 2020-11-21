@@ -67,5 +67,8 @@ plot_checkerboard_score_by_dose <- function(
           breaks = log10(d2),
           labels = signif(d2_label, 3),
           expand = c(0, 0)) +
-      ggplot2::scale_fill_continuous("Response")
+      viridis::scale_fill_viridis(
+          "Response",
+          option = "cividis",
+          guide = guide_colorbar(reverse = TRUE))
 }

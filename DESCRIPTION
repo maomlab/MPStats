@@ -17,6 +17,7 @@ Imports:
     tidyr (>= 1.0.0.9000),
     dplyr (>= 0.8.3),
     stringr (>= 1.4.0),
+    viridis(>= 0.5.1),
     scales (>= 1.1.0),
     tictoc (>= 1.0),
     gplots (>= 3.0.1.2),

@@ -12,7 +12,7 @@ poisson_quantile(count, p)
 \item{probability}{quantile to return}
 }
 \value{
-count value of the given quantile of the posterior estimator for the
+count value of the given quantile of the posterior estimator for the poisson process
 }
 \description{
 The gamma distribution is the congugate prior for the poisson distribution. Given a prior `Gamma(k,theta)``,

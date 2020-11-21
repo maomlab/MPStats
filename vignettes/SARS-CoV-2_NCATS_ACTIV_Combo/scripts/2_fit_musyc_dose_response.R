@@ -6,107 +6,7 @@ library(MPStats)
 library(future)
 library(batchtools)
 
-field_scores <- readr::read_tsv("intermediate_data/field_scores.tsv")
-
-
-##########################################
-# Aggregate field data to the well level #
-##########################################
-# one trick thing is that DMSO controls and
-# single drug data can be re-used for different
-# combo screens.
-
-well_scores <- field_scores %>%
-    # assign zero and single agent treatments to the combo treatments
-    dplyr::filter(SampleID1 != "DMSO", SampleID2 != "DMSO") %>%
-    dplyr::group_by(SampleID1, SampleID2) %>%
-    dplyr::do({
-        data <- .
-        DMSO_treatments <- field_scores %>%
-            dplyr::filter(SampleID1 == "DMSO", SampleID2 == "DMSO") %>%
-            dplyr::mutate(
-                SampleID1_stock_conc_in_uM = 0,
-                SampleID2_stock_conc_in_uM = 0,
-                drug_combo = data$drug_combo[1])
-         drug1_treatments <- field_scores %>%
-                dplyr::filter(
-                    SampleID1 == "DMSO",
-                    SampleID2 == data$SampleID2[1]) %>%
-                dplyr::mutate(
-                    SampleID1_stock_conc_in_uM = 0,
-                    drug_combo = data$drug_combo[1])
-         drug2_treatments <- field_scores %>%
-                dplyr::filter(
-                    SampleID1 == data$SampleID1[1],
-                    SampleID2 == "DMSO") %>%
-                dplyr::mutate(
-                    SampleID2_stock_conc_in_uM = 0,
-                    drug_combo = data$drug_combo[1])
-        combo_treatments <- data
-        cat(data$drug_combo[1], "\n")
-        cat("  n DMSO treatments: ", nrow(DMSO_treatments) / 16, "\n", sep = "")
-        cat("  n drug1 treatments: ", nrow(drug1_treatments) / 16, "\n", sep = "")
-        cat("  n drug2 treatments: ", nrow(drug2_treatments) / 16, "\n", sep = "")
-        cat("  n combo treatments: ", nrow(combo_treatments) / 16, "\n", sep = "")        
-        dplyr::bind_rows(
-            DMSO_treatments,
-            drug1_treatments,
-            drug2_treatments,
-            combo_treatments)
-    }) %>%
-    dplyr::ungroup() %>%
-    dplyr::rename(
-        dose1 = SampleID1_stock_conc_in_uM,
-        dose2 = SampleID2_stock_conc_in_uM) %>%
-    dplyr::group_by(plate_id, drug_combo, well_id, dose1, dose2) %>%
-    dplyr::summarize(
-        n_positive = sum(syn_nucs_count),
-        count = sum(nuclei_count),
-        .groups = "drop")
-
-#check per combo number of wells
-#   combo: (plate replicates) * (drug1 doses) * (drug2 doses) +
-#   drug1: (plate_replicates) * (drug1_doses) * 3
-#   drug2: (plate_replicates) * (drug2_doses) * 2
-#   DMSO:  (plate_replicates) * (n combos)
-#
-#   5*5*5 + 5*5*3 + 5*5*2 + 5*6 = 280
-well_scores %>% dplyr::count(drug_combo)
-
-###############################################
-# plot checkerboards for all the combinations #
-###############################################
-treatment_scores <- well_scores %>%
-    dplyr::group_by(drug_combo, dose1, dose2) %>%
-    dplyr::summarize(
-        score = median(n_positive / count),
-        .groups = "drop")
-
-treatment_scores %>%
-    dplyr::group_by(drug_combo) %>%
-    dplyr::do({
-        data <- .
-        drug_combo <- data$drug_combo[1]
-        drug1 <- drug_combo %>% stringr::str_replace("_.+$", "")
-        drug2 <- drug_combo %>% stringr::str_replace("^.+_", "")
-        plot <- MPStats::plot_checkerboard_score_by_dose(
-            treatment_scores = data,
-            treatment_1_label = drug1,
-            treatment_2_label = drug2,
-            treatment_1_units = "nM",
-            treatment_2_units = "nM") +
-            ggplot2::scale_fill_continuous(
-                "% Infected",
-                limits = c(0, .1),
-                breaks = c(.0, .05, .1),
-                labels = scales::percent(c(0, .05, .1)))
-        ggplot2::ggsave(
-            paste0("product/figures/checkerboard_", data$drug_combo[1], ".pdf"),
-            width = 6,
-            height = 6)
-        data.frame()
-        })
-
+well_scores <- readr::read_tsv("intermediate_data/well_scores.Rdata")
 
 
 ###############################
@@ -124,8 +24,8 @@ synergy_model_c <- well_scores %>%
         model_evaluation_criteria = NULL,
         open_progress = FALSE)
 
-synergy_model_v2 <- well_scores %>%
-    dplyr::filter(drug_combo == "NCGC00686694-02_NCGC00090774-08") %>%
+synergy_model_v4.4 <- well_scores %>%
+    dplyr::filter(drug_combo == "NCGC00686694-02_NCGC00388427-03") %>%
     fit_MuSyC_score_by_dose(
         group_vars = vars(drug_combo),
         E0_prior = brms::prior(student_t(200, 0, .2), nlpar = "E0", lb=0, ub=1),
@@ -135,10 +35,10 @@ synergy_model_v2 <- well_scores %>%
         E0_init = function() {as.array(brms::rstudent_t(200, 0, .2))},
         E1_init = function() {as.array(brms::rstudent_t(200, 0, .2))},
         E2_init = function() {as.array(brms::rstudent_t(200, 0, .2))},
-        E3_init = function() {as.array(brms::rstudent_t(200, 0, .2))},        
-        #control = list(
-        #    adapt_delta = .99,
-        #    max_treedepth = 12),
+        E3_init = function() {as.array(brms::rstudent_t(200, 0, .2))},
+        control = list(
+            adapt_delta = .99,
+            max_treedepth = 12),
         stan_model_args = list(verbose = TRUE),
         model_evaluation_criteria = NULL,
         open_progress = FALSE)
@@ -166,9 +66,18 @@ save(synergy_model, file = "intermediate_data/synergy_model.Rdata")
 # combos 1, 2, and 5 converged
 save(synergy_model_c, file = "intermediate_data/synergy_model_c.Rdata")
 
+# narrow priors
+# control = NULL
+# combos 1, 2, 3, 5, 6 converged
+save(synergy_model_v3, file = "intermediate_data/synergy_model_v3.Rdata")
+
+# narrow priors
+# control = list(adapt_delta = .99, max_treedepth = 12)
+# combo 4 did not converge 
+save(synergy_model_v4.4, file = "intermediate_data/synergy_model_v4.4.Rdata")
 
 
-estimated_parameters <- synergy_model_c %>%
+estimated_parameters <- synergy_model_v3 %>%
     dplyr::rowwise() %>%
     dplyr::do({
         combo_model <- .
@@ -194,12 +103,12 @@ estimated_parameters <- synergy_model_c %>%
     
 
 estimated_parameters %>%
-    readr::write_tsv("product/estiamted_parameters_20201118.tsv")
+    readr::write_tsv("product/estimated_parameters_20201118.tsv")
 
 
 
 #############################
-# Analyze the fitted modesl #
+# Analyze the fitted models #
 #############################
 
 # interactively look for problems with the model fit
@@ -208,72 +117,4 @@ synergy_model$model[[3]] %>%
 
 
 
-source("../../R/fit_MuSyC_score_by_dose.R")
-treatment_scores <- well_scores %>%
-    dplyr::group_by(drug_combo, dose1, dose2) %>%
-    dplyr::summarize(
-        score = median(n_positive / count),
-        .groups = "drop") %>%
-    dplyr::group_by(drug_combo) %>%
-    dplyr::mutate(
-        d1_scale_factor = max(dose1),
-        d2_scale_factor = max(dose2)) %>%
-    dplyr::ungroup() %>%
-    dplyr::left_join(
-        estimated_parameters,
-        by = c("drug_combo")) %>%
-    dplyr::rowwise() %>%
-    dplyr::mutate(
-        prior_score = generate_MuSyC_effects(
-            d1 = dose1 / d1_scale_factor,
-            d2 = dose2 / d2_scale_factor,
-            E0 = E0,
-            C1 = 0.5, E1 = E1, s1 = 0.95,
-            C2 = 0.5, E2 = E2, s2 = 0.95,
-            alpha = 1.5, E3 = E3),
-        fitted_score = generate_MuSyC_effects(
-            d1 = dose1 / d1_scale_factor,
-            d2 = dose2 / d2_scale_factor,
-            E0 = E0,
-            C1 = C1, E1 = E1, s1 = s1,
-            C2 = C2, E2 = E2, s2 = s2,
-            alpha = alpha, E3 = E3)) %>%
-    dplyr::ungroup()
 
-source("../../R/plot_checkerboard_score_by_dose.R")
-treatment_scores %>%
-    dplyr::group_by(drug_combo) %>%
-    dplyr::do({
-        data <- .
-        drug_combo <- data$drug_combo[1]
-        drug1 <- drug_combo %>% stringr::str_replace("_.+$", "")
-        drug2 <- drug_combo %>% stringr::str_replace("^.+_", "")
-        plot <- plot_checkerboard_score_by_dose(
-            treatment_scores = data,
-            treatment_1_label = drug1,
-            treatment_2_label = drug2,
-            treatment_1_units = "nM",
-            treatment_2_units = "nM") +
-            ggplot2::geom_contour(
-                mapping = ggplot2::aes(
-                    x = log10(dose1),
-                    y = log10(dose2),
-                    z = prior_score),
-                color = "green") +
-            ggplot2::geom_contour(
-                mapping = ggplot2::aes(
-                    x = log10(dose1),
-                    y = log10(dose2),
-                    z = fitted_score),
-                color = "purple") +
-            ggplot2::scale_fill_continuous(
-                "% Infected",
-                limits = c(0, .1),
-                breaks = c(.0, .05, .1),
-                labels = scales::percent(c(0, .05, .1)))
-        ggplot2::ggsave(
-            paste0("product/figures/checkerboard_fitted_", data$drug_combo[1], ".pdf"),
-            width = 6,
-            height = 6)
-        data.frame()
-        })
