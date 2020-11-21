@@ -13,7 +13,7 @@ well_scores <- readr::read_tsv("intermediate_data/well_scores.Rdata")
 # fit the MuSyC synergy model #
 ###############################
 
-source("../../R/fit_MuSyC_score_by_dose.R")
+
 synergy_model_c <- well_scores %>%
     fit_MuSyC_score_by_dose(
         group_vars = vars(drug_combo),
@@ -24,21 +24,24 @@ synergy_model_c <- well_scores %>%
         model_evaluation_criteria = NULL,
         open_progress = FALSE)
 
-synergy_model_v4.4 <- well_scores %>%
-    dplyr::filter(drug_combo == "NCGC00686694-02_NCGC00388427-03") %>%
+source("../../R/fit_MuSyC_score_by_dose.R")
+synergy_model_v5.4 <- well_scores %>%
+    dplyr::filter(drug_combo == "Remdesivir_Nitazoxanide") %>%
     fit_MuSyC_score_by_dose(
         group_vars = vars(drug_combo),
         E0_prior = brms::prior(student_t(200, 0, .2), nlpar = "E0", lb=0, ub=1),
         E1_prior = brms::prior(student_t(200, 0, .2), nlpar = "E1", lb=0, ub=1),
         E2_prior = brms::prior(student_t(200, 0, .2), nlpar = "E2", lb=0, ub=1),
-        E3_prior = brms::prior(student_t(200, 0, .2), nlpar = "E3", lb=0, ub=1),
-        E0_init = function() {as.array(brms::rstudent_t(200, 0, .2))},
-        E1_init = function() {as.array(brms::rstudent_t(200, 0, .2))},
-        E2_init = function() {as.array(brms::rstudent_t(200, 0, .2))},
-        E3_init = function() {as.array(brms::rstudent_t(200, 0, .2))},
-        control = list(
-            adapt_delta = .99,
-            max_treedepth = 12),
+        E3_alpha_prior = brms::prior(student_t(200, 0, .4), nlpar = "E3alpha", lb=0, ub=3),
+        E0_init = function() {as.array(brms::rstudent_t(1, 200, 0, .2))},
+        E1_init = function() {as.array(brms::rstudent_t(1, 200, 0, .2))},
+        E2_init = function() {as.array(brms::rstudent_t(1, 200, 0, .2))},
+        E3_alpha_init = function() {as.array(brms::rstudent_t(1, 200, 0, .))},
+#        iter = 8000,
+#        warmup = 1990,
+        #control = list(
+        #    adapt_delta = .99,
+        #    max_treedepth = 12),
         stan_model_args = list(verbose = TRUE),
         model_evaluation_criteria = NULL,
         open_progress = FALSE)
