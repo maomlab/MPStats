@@ -2,9 +2,6 @@
 
 library(plyr)
 library(tidyverse)
-library(MPStats)
-library(future)
-library(batchtools)
 
 field_scores <- readr::read_tsv("intermediate_data/field_scores.tsv")
 

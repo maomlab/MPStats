@@ -46,12 +46,14 @@ synergy_model_v5 <- well_scores %>%
         E1_init = function() {as.array(brms::rstudent_t(1, 200, 0, .2))},
         E2_init = function() {as.array(brms::rstudent_t(1, 200, 0, .2))},
         E3_alpha_init = function() {as.array(brms::rstudent_t(1, 200, 0, .))},
+        chains = 5,
         #control = list(
         #    adapt_delta = .99,
         #    max_treedepth = 12),
         stan_model_args = list(verbose = TRUE),
         model_evaluation_criteria = NULL,
         open_progress = FALSE,
+        seed = 1234,
         silent = FALSE,
         future = TRUE)
 
