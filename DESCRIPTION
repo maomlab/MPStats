@@ -23,7 +23,6 @@ Imports:
     gplots (>= 3.0.1.2),
     ggplot2 (>= 1.0.1),
     drc (>= 3.0-1),
-    drcData (>= 1.0.2),
     brms (>= 2.14.2),
     arrow (>= 0.16.0.2),
     robustHD (>= 0.6.1),
@@ -39,7 +38,6 @@ Suggests:
 Remotes:
     collectivemedia/tictoc,
     DoseResponse/drc,
-    DoseResponse/drcData,    
     thomasp85/patchwork
 Collage: 'geom_indicator.R',
     'read_well_scores.R',

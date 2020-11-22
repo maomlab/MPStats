@@ -2,8 +2,9 @@ library(plyr)
 library(tidyverse)
 library(MPStats)
 library(brms)
-library(future)
 
+
+library(future)
 Sys.setenv(DEBUGME = "batchtools")
 library(batchtools)
 library(future.batchtools)
@@ -41,11 +42,13 @@ synergy_model_v5 <- well_scores %>%
         E0_prior = brms::prior(student_t(200, 0, .2), nlpar = "E0", lb=0, ub=1),
         E1_prior = brms::prior(student_t(200, 0, .2), nlpar = "E1", lb=0, ub=1),
         E2_prior = brms::prior(student_t(200, 0, .2), nlpar = "E2", lb=0, ub=1),
-        E3_alpha_prior = brms::prior(student_t(200, 0, .4), nlpar = "E3alpha", lb=0, ub=3),
+        log10alpha_prior = brms::prior(normal(0, .5), nlpar = "log10alpha", lb = 0),        
+        E3_alpha_prior = brms::prior(student_t(200, 0, .2), nlpar = "E3alpha", lb=0, ub=3),
         E0_init = function() {as.array(brms::rstudent_t(1, 200, 0, .2))},
         E1_init = function() {as.array(brms::rstudent_t(1, 200, 0, .2))},
         E2_init = function() {as.array(brms::rstudent_t(1, 200, 0, .2))},
-        E3_alpha_init = function() {as.array(brms::rstudent_t(1, 200, 0, .))},
+        E3_alpha_init = function() {as.array(brms::rstudent_t(1, 200, 0, .2))},
+        log10alpha_init = function() {as.array(0)},        
         #control = list(
         #    adapt_delta = .99,
         #    max_treedepth = 12),
@@ -57,6 +60,8 @@ synergy_model_v5 <- well_scores %>%
 
 
 save(synergy_model_v5, file = "intermediate_data/synergy_model_v5.Rdata")
+
+load("intermediate_data/synergy_model_v5.Rdata")
 
 estimated_parameters <- synergy_model_v3 %>%
     dplyr::rowwise() %>%
@@ -92,5 +97,5 @@ estimated_parameters %>%
 #############################
 
 # interactively look for problems with the model fit
-synergy_model$model[[3]] %>%
+synergy_model_v5$model[[5]] %>%
     shinystan::launch_shinystan()
