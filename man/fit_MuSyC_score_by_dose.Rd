@@ -134,34 +134,7 @@ Ed = (C2^h2 * E0 + d2^h2 * E2) / (C2^h2 + d2^h2)
 
 When d1>0 and d2 -> Inf then Ed
 Ed = (C1^h1 * C2^h2 * E0 + C1^h1 * C2^h2 * E2) / (C1^h1 * C2^h2 + C1^h1 * C2^h2)
-   = (E0 + E2) / 2
-
-Claim: When d1=0 and d2=C2 then d(Ed)/d(d2) = s2
-       where h2 = s2 * (4 * C2) / (E0 + E2))
-
-d(Ed)/d(d2)
-  =  d/d(d2)
-     (C1^h1 * C2^h2 * E0 + C1^h1 * d2^h2 * E2) /
-     (C1^h1 * C2^h2      + C1^h1 * d2^h2)
-
-Cancle the C1^h1 terms:
-  =  d/d(d2)
-     (C2^h2 * E0 + d2^h2 * E2) /
-     (C2^h2      + d2^h2)
-
-
-distribute the derivative across the terms in the numerator
-  =  E0 * C2^h2 * [d/d(d2) 1     / (C2^h2 + d2^h2)] +
-     E2         * [d/d(d2) d2^h2 / (C2^h2 + d2^h2)]
-
-  =  E0 * C2^h2 * [h2 * d2^(h2-1) / (C2^h2 + d2^h2)^2] +
-     E2 * [C2^h2 * h2 * d2^(h2-1) / (C2^h2 + d2^h2)^2]
-
-  =  (E0 + E2) * C2^h2 * h2 * d2^(h2-1)/(C2^h2 + d2^h2)^2
-
-Evaluate at d2 = C2:
-  =  (E0 + E2) * h2 * C2^(2*h2-1) / [4*C2^(2*h2))]
-  =  h2 * (E0 + E2) / (4 * C2)}
+   = (E0 + E2) / 2}
 }
 \description{
 Fit the MuSyC synergy model by dose
