@@ -441,7 +441,6 @@ MuSyC_default_inits <- function() {
 
 
 #'
-#'
 #'@export
 fit_MuSyC_score_by_dose_robust <- function(
   well_scores,
@@ -461,6 +460,13 @@ fit_MuSyC_score_by_dose_robust <- function(
 
   if (verbose) {
       cat("Fitting MuSyC model\n")
+  }
+
+  if (is.data.frame(well_scores)) {
+    grouped_data <- well_scores %>%
+      dplyr::group_by(!!!group_vars) %>%
+      tidyr::nest() %>%
+      dplyr::ungroup()
   }
 
   formula <- brms::brmsformula(
@@ -528,6 +534,15 @@ fit_MuSyC_score_by_dose_robust <- function(
           block = "genquant",
           position = "end"))
 
+  model_code <- brms::make_stancode(
+      formula = formula,
+      data = grouped_data$data[[1]],
+      family = binomial("identity"),
+      prior = prior,
+      inits = inits,
+      data2 = scale_factors,
+      stanvars = stanvars)
+    
   model <- brms::brm_multiple(
     formula = formula,
     data = grouped_data$data,
@@ -543,6 +558,7 @@ fit_MuSyC_score_by_dose_robust <- function(
     control = control,
     ...)
 
+    
   if (!is.null(model_evaluation_criteria)) {
     # evalate fits
     model <- model %>%
