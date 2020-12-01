@@ -7,7 +7,7 @@ library(tidyverse)
 library(MPStats)
 
 
-well_scores <- readr::read_tsv("intermediate_data/well_scores.Rdata")
+well_scores <- readr::read_tsv("intermediate_data/well_scores.tsv")
 
 
 single_agent_well_scores <- dplyr::bind_rows(

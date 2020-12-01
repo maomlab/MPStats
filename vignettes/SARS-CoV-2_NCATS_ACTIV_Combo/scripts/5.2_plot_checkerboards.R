@@ -115,13 +115,6 @@ fit_treatment_scores <- well_scores %>%
         by = c("drug_combo")) %>%
     dplyr::rowwise() %>%
     dplyr::mutate(
-#        prior_score = MPStats::generate_MuSyC_effects(
-#            d1 = dose1 / d1_scale_factor,
-#            d2 = dose2 / d2_scale_factor,
-#            E0 = E0,
-#            C1 = 0.5, E1 = E1, s1 = 0.95,
-#            C2 = 0.5, E2 = E2, s2 = 0.95,
-#            alpha = 1.5, E3 = E3),
         fitted_score = MPStats::generate_MuSyC_effects(
             d1 = dose1 / d1_scale_factor,
             d2 = dose2 / d2_scale_factor,

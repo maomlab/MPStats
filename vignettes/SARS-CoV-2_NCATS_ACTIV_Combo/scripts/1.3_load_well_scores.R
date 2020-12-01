@@ -83,4 +83,4 @@ well_scores %>% dplyr::count(drug_combo)
 
 
 well_scores %>%
-    readr::write_tsv("intermediate_data/well_scores.Rdata")
+    readr::write_tsv("intermediate_data/well_scores.tsv")

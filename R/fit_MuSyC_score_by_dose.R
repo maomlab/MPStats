@@ -1,3 +1,64 @@
+#' Convert from slope parametrization to the exponent parametrization for drug i
+#'
+#' This can be used for setting priors and interpreting parameter estimates
+#'
+#' @param si slope of drug i at it's IC50 and doses of all other drugs are zero
+#' @param Ci the IC50 of drug i
+#' @param E0 the reponse with no treatments
+#' @param Ei the reponse of inifinite drug i and no other treatments
+#' @return hi the exponent in the MuSyC equation for drug i
+#'
+#'
+#' Claim: When d1=0 and d2=C2 then d(Ed)/d(d2) = s2
+#'        where s2 = h2 * (E0 + E2) / (4 * C2)
+#'
+#' d(Ed)/d(d2)
+#'   =  d/d(d2)
+#'      (C1^h1 * C2^h2 * E0 + C1^h1 * d2^h2 * E2) /
+#'      (C1^h1 * C2^h2      + C1^h1 * d2^h2)
+#'
+#'Cancle the C1^h1 terms:
+#'   =  d/d(d2)
+#'      (C2^h2 * E0 + d2^h2 * E2) /
+#'      (C2^h2      + d2^h2)
+#'
+#'
+#' distribute the derivative across the terms in the numerator
+#'   =  E0 * C2^h2 * [d/d(d2) 1     / (C2^h2 + d2^h2)] +
+#'      E2         * [d/d(d2) d2^h2 / (C2^h2 + d2^h2)]
+#'
+#'   =  E0 * C2^h2 * [h2 * d2^(h2-1) / (C2^h2 + d2^h2)^2] +
+#'      E2 * [C2^h2 * h2 * d2^(h2-1) / (C2^h2 + d2^h2)^2]
+#'
+#'   =  (E0 + E2) * C2^h2 * h2 * d2^(h2-1)/(C2^h2 + d2^h2)^2
+#'
+#' Evaluate at d2 = C2:
+#'   =  (E0 + E2) * h2 * C2^(2*h2-1) / [4*C2^(2*h2))]
+#'   =  h2 * (E0 + E2) / (4 * C2)
+#'
+#'
+#'@export
+MuSyC_si_to_hi <- function(si, Ci, E0, Ei){
+    si * 4 * Ci / (E0 + Ei)
+}
+
+#' Convert from slope parametrization to the exponent parametrization for drug i#
+#'
+#' This can be used for setting priors and interpreting parameter estimates
+#' see MuSyC_si_to_hi for details
+#'
+#' @param si slope of drug i at it's IC50 and doses of all other drugs are zero
+#' @param Ci the IC50 of drug i
+#' @param E0 the reponse with no treatments
+#' @param Ei the reponse of inifinite drug i and no other treatments
+#' @return hi the exponent in the MuSyC equation for drug i
+#'
+#'@export
+MuSyC_hi_to_si <- function(hi, Ci, E0, Ei){
+    hi * (E0 + Ei) / (4 * Ci)
+}
+
+
 #' Drug Synergy
 #' Musyc Drug Synergy model
 #'
@@ -64,9 +125,8 @@ generate_MuSyC_effects <- function(
   s2, C2, E2,
   alpha,
   E3) {
-
-  h1 <- s1 * (4 * C1) / (E0 + E1)
-  h2 <- s2 * (4 * C2) / (E0 + E2)
+  h1 <- MuSyC_si_to_hi(s1, C1, E0, E1)
+  h2 <- MuSyC_si_to_hi(s2, C2, E0, E2)
   numerator <-
     C1^h1 * C2^h2 * E0 +
     d1^h1 * C2^h2 * E1 +
@@ -79,6 +139,37 @@ generate_MuSyC_effects <- function(
       d1^h1 * d2^h2 * alpha
   response <- numerator / denominator
 }
+
+#' Generate MuSyC Ed scores using a robust functional form
+#' It should give the same results as the simple one, but
+#' be more numerically stable
+#' @export
+generate_MuSyC_effects_robust <- function(
+  logd1,
+  logd2,
+  logE0,
+  h1, logC1, logE1,
+  h2, logC2, logE2,
+  logE3,
+  logalpha) {
+    numerator_parts <- c(
+        h1*logC1 + h2*logC2 + logE0,
+        h1*logd1 + h2*logC2 + logE1,
+        h1*logC1 + h2*logd2 + logE2,
+        h1*logd1 + h2*logd2 + logE3 + logalpha)
+    numerator_max <- max(numerator_parts)
+    log_numerator <- numerator_max + log(sum(exp(numerator_parts - numerator_max)))
+    denominator_parts <- c(
+        h1*logC1 + h2*logC2,
+        h1*logd1 + h2*logC2,
+        h1*logC1 + h2*logd2,
+        h1*logd1 + h2*logd2 + logalpha)
+    denominator_max <- max(denominator_parts)
+    log_denominator <- denominator_max + log(sum(exp(denominator_parts - denominator_max)))
+    exp(log_numerator - log_denominator)
+}
+
+
 
 #' Fit the MuSyC synergy model by dose
 #'
@@ -159,34 +250,6 @@ generate_MuSyC_effects <- function(
 #' Ed = (C1^h1 * C2^h2 * E0 + C1^h1 * C2^h2 * E2) / (C1^h1 * C2^h2 + C1^h1 * C2^h2)
 #'    = (E0 + E2) / 2
 #'
-#' Claim: When d1=0 and d2=C2 then d(Ed)/d(d2) = s2
-#'        where h2 = s2 * (4 * C2) / (E0 + E2))
-#'
-#' d(Ed)/d(d2)
-#'   =  d/d(d2)
-#'      (C1^h1 * C2^h2 * E0 + C1^h1 * d2^h2 * E2) /
-#'      (C1^h1 * C2^h2      + C1^h1 * d2^h2)
-#'
-#'Cancle the C1^h1 terms:
-#'   =  d/d(d2)
-#'      (C2^h2 * E0 + d2^h2 * E2) /
-#'      (C2^h2      + d2^h2)
-#'
-#'
-#' distribute the derivative across the terms in the numerator
-#'   =  E0 * C2^h2 * [d/d(d2) 1     / (C2^h2 + d2^h2)] +
-#'      E2         * [d/d(d2) d2^h2 / (C2^h2 + d2^h2)]
-#'
-#'   =  E0 * C2^h2 * [h2 * d2^(h2-1) / (C2^h2 + d2^h2)^2] +
-#'      E2 * [C2^h2 * h2 * d2^(h2-1) / (C2^h2 + d2^h2)^2]
-#'
-#'   =  (E0 + E2) * C2^h2 * h2 * d2^(h2-1)/(C2^h2 + d2^h2)^2
-#'
-#' Evaluate at d2 = C2:
-#'   =  (E0 + E2) * h2 * C2^(2*h2-1) / [4*C2^(2*h2))]
-#'   =  h2 * (E0 + E2) / (4 * C2)
-#'
-#'
 #'@export
 fit_MuSyC_score_by_dose <- function(
   well_scores,
@@ -195,7 +258,7 @@ fit_MuSyC_score_by_dose <- function(
   C2_prior = brms::prior(normal(0.5, 0.5), nlpar = "C2", lb = 0),
   s1_prior = brms::prior(normal(1, 3), nlpar = "s1", lb = -.1),
   s2_prior = brms::prior(normal(1, 3), nlpar = "s2", lb = -.1),
-  log10alpha_prior = brms::prior(normal(0, 2), nlpar = "log10alpha", lb = 0),
+  log10alpha_prior = brms::prior(normal(0, .5), nlpar = "log10alpha", lb = 0),
   E0_prior = brms::prior(beta(1, 1), nlpar = "E0", lb = 0, ub = 1),
   E1_prior = brms::prior(beta(1, 1), nlpar = "E1", lb = 0, ub = 1),
   E2_prior = brms::prior(beta(1, 1), nlpar = "E2", lb = 0, ub = 1),
@@ -204,7 +267,7 @@ fit_MuSyC_score_by_dose <- function(
   C2_init = function() {as.array(runif(1, 0, 2))},
   s1_init = function() {as.array(runif(1, -0.1, 2))},
   s2_init = function() {as.array(runif(1, -0.1, 2))},
-  log10alpha_init = function() {as.array(runif(1, 0, 3))},
+  log10alpha_init = function() {as.array(0)},
   E0_init = function() {as.array(rbeta(1, 1, 1))},
   E1_init = function() {as.array(rbeta(1, 1, 1))},
   E2_init = function() {as.array(rbeta(1, 1, 1))},
@@ -300,6 +363,202 @@ fit_MuSyC_score_by_dose <- function(
     control = control,
     ...)
 
+  if (!is.null(model_evaluation_criteria)) {
+    # evalate fits
+    model <- model %>%
+      purrr::imap(function(model, i) {
+        group_index <- grouped_data[i, ] %>% dplyr::select(-data)
+        group_index_label <- paste0(
+            names(group_index), ": ", group_index, collapse = ", ")
+        cat("Evaluating model fit for ", group_index_label, "...\n", sep = "")
+        model <- model %>% brms::add_criterion(
+          criterion = model_evaluation_criteria,
+          model_name = paste0("MuSyC:", group_index_label),
+          reloo = TRUE)
+        model
+      })
+  }
+  grouped_data %>%
+    dplyr::mutate(
+      model = model)
+}
+
+#'Default priors for MuSyC synergy model
+#'
+#'@return named vector of class 'brms::brmsprior'
+#'
+#'@export
+MuSyC_default_prior <- function() {
+    c(
+        brms::prior_string(
+            prior = paste0("normal(", signif(log(.5), 4), ", 3)"),
+            nlpar = "logE0",
+            ub = 0),
+        brms::prior_string(
+            prior = paste0("normal(", signif(log(0.25), 4), ", 3)"),
+            nlpar = "logE1",
+            ub = 0),
+        brms::prior_string(
+            prior = paste0("normal(", signif(log(0.25), 4), ", 3)"),
+            nlpar = "logE2",
+            ub = 0),
+        brms::prior_string(
+            prior = paste0("normal(", signif(log(0.25), 4), ", 3)"),
+            nlpar = "logE3",
+            ub = 0),
+        brms::prior_string(
+            prior = paste0("normal(0, 3)"),
+            nlpar = "logC1"),
+        brms::prior_string(
+            prior = paste0("normal(0, 3)"),
+            nlpar = "logC2"),
+        brms::prior_string(
+            prior = paste0("normal(", signif(MuSyC_si_to_hi(si = 1, Ci = 1, E0 = 1, Ei = 0), 4), ", 5)"),
+            nlpar = "h1",
+            lb = .1),
+        brms::prior_string(
+            prior = paste0("normal(", signif(MuSyC_si_to_hi(si = 1, Ci = 1, E0 = 1, Ei = 0), 4), ", 5)"),
+            nlpar = "h2",
+            lb = .1),
+        brms::prior_string(
+            prior = paste0("normal(0, .5)"),
+            nlpar = "logalpha"))
+}
+
+#'@export
+MuSyC_default_inits <- function() {
+    list(
+        b_logC1 = as.array(0.0),
+        b_logC2 = as.array(0.0),
+        b_h1 = as.array(MuSyC_si_to_hi(si = 1, Ci = 1, E0 = 1, Ei = 0.0)),
+        b_h2 = as.array(MuSyC_si_to_hi(si = 1, Ci = 1, E0 = 1, Ei = 0.0)),
+        b_logalpha = as.array(0),
+        b_logE0 = as.array(log(0.5)),
+        b_logE1 = as.array(log(0.25)),
+        b_logE2 = as.array(log(0.25)),
+        b_logE3 = as.array(log(0.25)))
+}
+
+
+#'
+#'@export
+fit_MuSyC_score_by_dose_robust <- function(
+  well_scores,
+  group_vars = vars(compound),
+  prior = MuSyC_default_prior(),
+  inits = MuSyC_default_inits,
+  combine = FALSE,
+  verbose = FALSE,
+  iter = 8000,
+  cores = 4,
+  stan_model_args = list(verbose = FALSE),
+  control = list(
+      adapt_delta = .99,
+      max_treedepth = 12),
+  model_evaluation_criteria = c("loo", "bayes_R2"),
+  ...) {
+
+  if (verbose) {
+      cat("Fitting MuSyC model\n")
+  }
+
+  if (is.data.frame(well_scores)) {
+    grouped_data <- well_scores %>%
+      dplyr::group_by(!!!group_vars) %>%
+      tidyr::nest() %>%
+      dplyr::ungroup()
+  }
+
+  formula <- brms::brmsformula(
+      n_positive | trials(count) ~ MuSyC(
+          logd1, logd2,
+          logE0,
+          logC1, logE1, h1,
+          logC2, logE2, h2,
+          logE3, logalpha),
+      brms::nlf(logd1 ~ log(dose1 / d1_scale_factor)),
+      brms::nlf(logd2 ~ log(dose2 / d2_scale_factor)),
+      logE0 + logC1 + logE1 + h1 + logC2 + logE2 + h2 + logE3 + logalpha  ~ 1,
+      nl = TRUE)
+
+  stanvars <- c(
+      brms::stanvar(
+        scode = paste(
+            "  real MuSyC(",
+            "    real logd1, real logd2,",
+            "    real logE0,",
+            "    real logC1, real logE1, real h1,",
+            "    real logC2, real logE2, real h2,",
+            "    real logE3, real logalpha) {",
+            "      vector[4] numerator_parts;",
+            "      vector[4] denominator_parts;",
+            "      numerator_parts[1] = h1*logC1 + h2*logC2 + logE0;",
+            "      denominator_parts[1] = h1*logC1 + h2*logC2;",
+            "      if( logd1 > negative_infinity() ) {",
+            "        numerator_parts[2] = h1*logd1 + h2*logC2 + logE1;",
+            "        denominator_parts[2] = h1*logd1 + h2*logC2;",
+            "      } else {",
+            "        numerator_parts[2] = negative_infinity();",
+            "        denominator_parts[2] = negative_infinity();",
+            "      }",
+            "      if( logd2 > negative_infinity() ) {",
+            "        numerator_parts[3] = h1*logC1 + h2*logd2 + logE2;",
+            "        denominator_parts[3] = h1*logC1 + h2*logd2;",
+            "      } else {",
+            "        numerator_parts[3] = negative_infinity();",
+            "        denominator_parts[3] = negative_infinity();",
+            "      }",
+            "      if( (logd1 > negative_infinity()) && (logd2 > negative_infinity())) {",
+            "        numerator_parts[4] = h1*logd1 + h2*logd2 + logE3 + logalpha;",
+            "        denominator_parts[4] = h1*logd1 + h2*logd2 + logalpha;",
+            "      } else {",
+            "        numerator_parts[4] = negative_infinity();",
+            "        denominator_parts[4] = negative_infinity();",
+            "      }",
+            "      return exp(log_sum_exp(numerator_parts) - log_sum_exp(denominator_parts));",
+            "  }", sep = "\n"),
+        block = "functions",
+        position = "start"),
+      brms::stanvar(
+          scode = paste(
+            "  real E0 = exp(b_logE0[1]);",
+            "  real E1 = exp(b_logE1[1]);",
+            "  real E2 = exp(b_logE2[1]);",
+            "  real E3 = exp(b_logE3[1]);",
+            "  real s1 = b_h1[1] * (E0 + E1) / (4 * exp(b_logC1[1]));",
+            "  real s2 = b_h2[1] * (E0 + E2) / (4 * exp(b_logC2[1]));",
+            "  real C1 = exp(b_logC1[1]) * C_logd1_2[1];",
+            "  real C2 = exp(b_logC2[1]) * C_logd2_2[1];",
+            "  real alpha = exp(b_logalpha[1]);",
+            sep = "\n"),
+          block = "genquant",
+          position = "end"))
+
+  model_code <- brms::make_stancode(
+      formula = formula,
+      data = grouped_data$data[[1]],
+      family = binomial("identity"),
+      prior = prior,
+      inits = inits,
+      data2 = scale_factors,
+      stanvars = stanvars)
+    
+  model <- brms::brm_multiple(
+    formula = formula,
+    data = grouped_data$data,
+    family = binomial("identity"),
+    prior = prior,
+    stanvars = stanvars,
+    inits = inits,
+    combine = FALSE,
+    data2 = grouped_data$data,
+    iter = iter,
+    cores = cores,
+    stan_model_args = stan_model_args,
+    control = control,
+    ...)
+
+    
   if (!is.null(model_evaluation_criteria)) {
     # evalate fits
     model <- model %>%

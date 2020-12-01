@@ -11,7 +11,7 @@ fit_MuSyC_score_by_dose(
   C2_prior = brms::prior(normal(0.5, 0.5), nlpar = "C2", lb = 0),
   s1_prior = brms::prior(normal(1, 3), nlpar = "s1", lb = -0.1),
   s2_prior = brms::prior(normal(1, 3), nlpar = "s2", lb = -0.1),
-  log10alpha_prior = brms::prior(normal(0, 2), nlpar = "log10alpha", lb = 0),
+  log10alpha_prior = brms::prior(normal(0, 0.5), nlpar = "log10alpha", lb = 0),
   E0_prior = brms::prior(beta(1, 1), nlpar = "E0", lb = 0, ub = 1),
   E1_prior = brms::prior(beta(1, 1), nlpar = "E1", lb = 0, ub = 1),
   E2_prior = brms::prior(beta(1, 1), nlpar = "E2", lb = 0, ub = 1),
@@ -20,7 +20,7 @@ fit_MuSyC_score_by_dose(
   C2_init = function() {     as.array(runif(1, 0, 2)) },
   s1_init = function() {     as.array(runif(1, -0.1, 2)) },
   s2_init = function() {     as.array(runif(1, -0.1, 2)) },
-  log10alpha_init = function() {     as.array(runif(1, 0, 3)) },
+  log10alpha_init = function() {     as.array(0) },
   E0_init = function() {     as.array(rbeta(1, 1, 1)) },
   E1_init = function() {     as.array(rbeta(1, 1, 1)) },
   E2_init = function() {     as.array(rbeta(1, 1, 1)) },
@@ -134,34 +134,7 @@ Ed = (C2^h2 * E0 + d2^h2 * E2) / (C2^h2 + d2^h2)
 
 When d1>0 and d2 -> Inf then Ed
 Ed = (C1^h1 * C2^h2 * E0 + C1^h1 * C2^h2 * E2) / (C1^h1 * C2^h2 + C1^h1 * C2^h2)
-   = (E0 + E2) / 2
-
-Claim: When d1=0 and d2=C2 then d(Ed)/d(d2) = s2
-       where h2 = s2 * (4 * C2) / (E0 + E2))
-
-d(Ed)/d(d2)
-  =  d/d(d2)
-     (C1^h1 * C2^h2 * E0 + C1^h1 * d2^h2 * E2) /
-     (C1^h1 * C2^h2      + C1^h1 * d2^h2)
-
-Cancle the C1^h1 terms:
-  =  d/d(d2)
-     (C2^h2 * E0 + d2^h2 * E2) /
-     (C2^h2      + d2^h2)
-
-
-distribute the derivative across the terms in the numerator
-  =  E0 * C2^h2 * [d/d(d2) 1     / (C2^h2 + d2^h2)] +
-     E2         * [d/d(d2) d2^h2 / (C2^h2 + d2^h2)]
-
-  =  E0 * C2^h2 * [h2 * d2^(h2-1) / (C2^h2 + d2^h2)^2] +
-     E2 * [C2^h2 * h2 * d2^(h2-1) / (C2^h2 + d2^h2)^2]
-
-  =  (E0 + E2) * C2^h2 * h2 * d2^(h2-1)/(C2^h2 + d2^h2)^2
-
-Evaluate at d2 = C2:
-  =  (E0 + E2) * h2 * C2^(2*h2-1) / [4*C2^(2*h2))]
-  =  h2 * (E0 + E2) / (4 * C2)}
+   = (E0 + E2) / 2}
 }
 \description{
 Fit the MuSyC synergy model by dose
