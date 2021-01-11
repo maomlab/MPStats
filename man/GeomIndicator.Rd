@@ -4,7 +4,9 @@
 \name{GeomIndicator}
 \alias{GeomIndicator}
 \title{ggplot2 geom that adds a label to facet panes}
-\format{An object of class \code{GeomIndicator} (inherits from \code{Geom}, \code{ggproto}, \code{gg}) of length 4.}
+\format{
+An object of class \code{GeomIndicator} (inherits from \code{Geom}, \code{ggproto}, \code{gg}) of length 4.
+}
 \usage{
 GeomIndicator
 }

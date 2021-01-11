@@ -4,8 +4,7 @@
 \alias{plot_Zprime_by_dye}
 \title{Plot Zprime score by Dye combination}
 \usage{
-plot_Zprime_by_dye(Zprime_by_plate, dye_set_separator = "_",
-  subtitle = NULL)
+plot_Zprime_by_dye(Zprime_by_plate, dye_set_separator = "_", subtitle = NULL)
 }
 \arguments{
 \item{Zprime_by_plate}{tibble::tibble with columns

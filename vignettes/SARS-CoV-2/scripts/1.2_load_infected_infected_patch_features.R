@@ -270,9 +270,12 @@ puncta_metadata_columns %>% readr::write_tsv(
 # viral patch data for plate 999A #
 ###################################
 
-system("
-mkdir raw_data/infected_patches
-")
+input_path <- "raw_data/infected_patches"
+if (!dir.exists(paths = input_path)) {
+    dir.create(
+        path = input_path,
+        recursive = TRUE)
+}
 
 # output path
 output_path <- "intermediate_data/infected_patch_999A_20201112"
@@ -285,7 +288,7 @@ if (!dir.exists(paths = output_path)) {
 
 # for some reason the SQL folder isn't working through the S3-fuse
 system("
-aws s3 cp s3://sextoncov19/SQL/SARS_ViralPheno.sql raw_data/infected_patches
+python $(which aws) s3 cp s3://sextoncov19/SQL/SARS_ViralPheno.sql raw_data/infected_patches/
 ")
 
 # covert mysql dump to sqlite3 to read in with dbplyr
@@ -296,8 +299,9 @@ git clone https://github.com/dumblob/mysql2sqlite
 popd
 ")
 
+# this takes ~5-10 minutes
 system("
-~/opt/mysql2sqlite/mysql2sqlite raw_data/SARS_ViralPheno.sql | sqlite3 raw_data/infected_patches/SARS_ViralPheno.db3
+time ~/opt/mysql2sqlite/mysql2sqlite raw_data/infected_patches/SARS_ViralPheno.sql | sqlite3 raw_data/infected_patches/SARS_ViralPheno.db3
 ")
 
 con <- DBI::dbConnect(
@@ -401,3 +405,9 @@ puncta_features %>%
     arrow::write_parquet(
         sink = paste0(output_path, "/puncta_features.parquet"))
 
+
+# clean up raw input data
+system("
+rm raw_data/infected_patches/SARS_ViralPheno.db3
+rm raw_data/infected_patches/SARS_ViralPheno.sql
+")

@@ -12,7 +12,7 @@ poisson_quantile(count, p)
 \item{probability}{quantile to return}
 }
 \value{
-count value of the given quantile of the posterior estimator for the
+count value of the given quantile of the posterior estimator for the poisson process
 }
 \description{
 The gamma distribution is the congugate prior for the poisson distribution. Given a prior `Gamma(k,theta)``,
@@ -25,7 +25,7 @@ So the prior can be thought of as adding `theta` pseudo observations each with a
 
 Example:
 
-Say we have collected a sample of 3 counts with values `counts <- c(120, 130, 125)`
+    Say we have collected a sample of 3 counts with values `counts <- c(120, 130, 125)`
     then the 95% credible interval for the rate poisson rate parameter is
     
          low <- poisson_quantile(counts, .025)

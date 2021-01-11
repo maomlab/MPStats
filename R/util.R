@@ -90,7 +90,9 @@ binomial_quantile <- function(n_positive, n_trials, p){
 #'     
 #' @param count vector of n counts, assumed to be samples from a poisson process
 #' @param probability quantile to return
-#' @return count value of the given quantile of the posterior estimator for the 
+#' @return count value of the given quantile of the posterior estimator for the poisson process
+#'
+#' @export
 poisson_quantile <- function(count, p){
   qgamma(p=p, shape=sum(count), rate=length(count))
 }
