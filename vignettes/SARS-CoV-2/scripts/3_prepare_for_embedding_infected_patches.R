@@ -7,13 +7,21 @@ library(caret)
 source("scripts/make_scatter_boards.R")
 
 
-data_path <- "intermediate_data/infected_patch_1999B_2020A_2021A_20201017"
-
-viral_features <- arrow::read_parquet(
+single_data_path <- "intermediate_data/infected_patch_999A_20201112"
+single_viral_features <- arrow::read_parquet(
     file = paste0(data_path, "/viral_features.parquet"))
-viral_feature_columns <- readr::read_tsv(
+single_viral_feature_columns <- readr::read_tsv(
     file = paste0(data_path, "/viral_feature_columns.tsv"))
-viral_metadata_columns <- readr::read_tsv(
+single_viral_metadata_columns <- readr::read_tsv(
+    file = paste0(data_path, "/viral_metadata_columns.tsv"))
+
+
+combo_data_path <- "intermediate_data/infected_patch_1999B_2020A_2021A_20201017"
+combo_viral_features <- arrow::read_parquet(
+    file = paste0(data_path, "/viral_features.parquet"))
+combo_viral_feature_columns <- readr::read_tsv(
+    file = paste0(data_path, "/viral_feature_columns.tsv"))
+combo_viral_metadata_columns <- readr::read_tsv(
     file = paste0(data_path, "/viral_metadata_columns.tsv"))
 
 
