@@ -5,12 +5,13 @@ Title: Tools for analyzing Morphological Profiling data
 Description: Morphological profiling is an assay were cells are stained with
     multiple spectrally separated dyes and then imaged in high-throughput.
     This package collects methods for designing analyzing these types of experiments.
-Authors@R: person("Matthew", "O'Meara", email = "mattjomeara@gmail.com",
+Authors@R: person("Matthew", "O'Meara", email = "maom@umich.edu",
     role = c("aut", "cre"))
 URL: http://github.com/momeara/MPStats
 BugReports: https://github.com/momeara/MPStats/issues
 Depends:
     R (>= 3.6.0)
+bioViews:
 Imports:
     scales (>= 1.0.0),
     broom (>= 0.5.2.9001),
@@ -22,6 +23,7 @@ Imports:
     tictoc (>= 1.0),
     gplots (>= 3.0.1.2),
     ggplot2 (>= 1.0.1),
+    drcData (>= 1.1-2),
     drc (>= 3.0-1),
     brms (>= 2.14.2),
     arrow (>= 0.16.0.2),
@@ -50,6 +52,7 @@ Suggests:
     BiocNeighbors (>= 1.8.2)
 Remotes:
     collectivemedia/tictoc,
+    DoseResponse/drcData,
     DoseResponse/drc,
     thomasp85/patchwork,
     cole-trapnell-lab/monocle3
