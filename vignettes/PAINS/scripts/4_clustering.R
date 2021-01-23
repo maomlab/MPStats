@@ -5,9 +5,6 @@ library(tidyverse)
 library(MPStats)
 library(arrow)
 
-source("scripts/monocle3_support.R")
-
-
 dataset_ids <- readr::read_tsv("raw_data/dataset_ids.tsv")
 
 cell_feature_columns <- readr::read_tsv("raw_data/cell_feature_columns.tsv")
@@ -29,7 +26,7 @@ cell_feature_columns <- tibble::tibble(feature = c("UMAP_1", "UMAP_2"))
 embedding <- embedding %>% dplyr::sample_n(5000000)
 
 
-cell_dataset <- populate_cds(
+cell_dataset <- MPStats::populate_cds(
     cell_features = embedding,
     cell_feature_columns = cell_feature_columns,
     cell_metadata_columns = cell_metadata_columns,

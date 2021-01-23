@@ -3,6 +3,7 @@ library(tidyverse)
 library(arrow)
 library(monocle3)
 library(BiocNeighbors)
+library(MPStats)
 
 cell_metadata_columns <- readr::read_tsv("raw_data/cell_metadata_columns_TS.tsv")
 
@@ -292,8 +293,7 @@ ggplot2::ggsave(
 # Use Monocle3 to cluster and estimate pseudo-time #
 ####################################################
 
-source("scripts/monocle3_support.R")
-infected_cds <- populate_cds(
+infected_cds <- MPStats::populate_cds(
     cell_features = infected_cells_and_embedding,
     cell_feature_columns = cell_feature_columns,
     cell_metadata_columns = cell_metadata_columns,
@@ -308,7 +308,7 @@ infected_cds <- infected_cds %>%
         num_iter = 10,
         verbose = TRUE)
 
-infected_cds %>% serialize_clusters(
+infected_cds %>% MPStats::serialize_clusters(
     output_fname = "~/opt/MPLearn/vignettes/SARS-CoV-2/S25/intermediate_data/UMAP_embedding_TS_scaled_infected_a=1_b=0.5_n_neighbors=500_negative_sample_rate=20_n_epochs=2000/clusters_leiden_res=1e-10.parquet")
 
 infected_cds <- infected_cds %>%

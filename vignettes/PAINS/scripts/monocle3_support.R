@@ -1,1 +1,0 @@
-../../SARS-CoV-2/scripts/monocle3_support.R

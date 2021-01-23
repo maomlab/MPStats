@@ -398,8 +398,7 @@ image_scores_CQ1_TS_202008 <- arrow::read_parquet(
 
 readr::read_tsv("raw_data/plate_ids.tsv") %>%
     dplyr::filter(schema == "covid19cq1") %>%
-    #dplyr::filter(plate_id %in% c("TS2PL1", "TS2PL2", "TS2PL3")) %>%
-    dplyr::filter(plate_id %in% c("TS2PL3")) %>%    
+    dplyr::filter(plate_id %in% c("TS2PL1", "TS2PL2", "TS2PL3")) %>%
     plyr::a_ply(1, function(df) {
         collect_cell_features(
             con = con,
