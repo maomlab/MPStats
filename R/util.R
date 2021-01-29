@@ -121,7 +121,13 @@ umich_colors <- c(
   dusty_blue = "#9FB6BC",
   grey_blue = "#465E85")
   
-
+#' Set bayesplot theme to MPStat defaults
+#'
+#' @export
+bayesplot_theme <- function() {
+    bayesplot::bayesplot_theme_update(
+        text = element_text(size = 12, family = "sans"))
+}
 
 #' @importFrom magrittr %>%
 NULL
