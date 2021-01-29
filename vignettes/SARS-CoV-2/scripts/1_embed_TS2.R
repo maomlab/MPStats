@@ -131,8 +131,7 @@ cell_features <- dplyr::bind_cols(
         file = "~/opt/MPLearn/vignettes/SARS-CoV-2/S25/intermediate_data/UMAP_embedding_into_TS2_2M_epochs=2000_20200901/umap_embedding.parquet"))
 
 
-source("scripts/monocle3_support.R")
-all_cds <- populate_cds(
+all_cds <- MPStats::populate_cds(
     cell_features = cell_features,
     cell_feature_columns = cell_feature_columns,
     cell_metadata_columns = cell_metadata_columns,
@@ -148,7 +147,7 @@ all_cds <- all_cds %>%
         num_iter = 10,
         verbose = TRUE)
 
-infected_cds %>% serialize_clusters(
+infected_cds %>% MPStats::serialize_clusters(
     output_fname = "~/opt/MPLearn/vignettes/SARS-CoV-2/S25/intermediate_data/UMAP_embedding_into_TS2_epochs=2000/clusters_leiden_k=200_res=1e-5.parquet")
 
 
@@ -191,8 +190,7 @@ infected_cell_features <- dplyr::bind_cols(
         "~/opt/MPLearn/vignettes/SARS-CoV-2/S25/intermediate_data/UMAP_embedding_TS2_infected_epochs=2000/umap_embedding.parquet"))
 
 
-source("scripts/monocle3_support.R")
-infected_cds <- populate_cds(
+infected_cds <- MPStats::populate_cds(
     cell_features = infected_cell_features,
     cell_feature_columns = cell_feature_columns,
     cell_metadata_columns = cell_metadata_columns,
@@ -208,7 +206,7 @@ infected_cds <- infected_cds %>%
         num_iter = 10,
         verbose = TRUE)
 
-infected_cds %>% serialize_clusters(
+infected_cds %>% MPStats::serialize_clusters(
     output_fname = "~/opt/MPLearn/vignettes/SARS-CoV-2/S25/intermediate_data/UMAP_embedding_TS2_infected_epochs=2000/clusters_leiden_k=200_res=1e-5.parquet")
 
 system("ln -s clusters_leiden_k=200_res=1e-5.parquet ~/opt/MPLearn/vignettes/SARS-CoV-2/S25/intermediate_data/UMAP_embedding_TS2_infected_epochs=2000/clusters.parquet")

@@ -29,9 +29,10 @@ Imports:
     arrow (>= 0.16.0.2),
     robustHD (>= 0.6.1),
     patchwork (>= 1.0.0.9000),
-    princurve (>= 2.1.4),
     RMySQL (>= 0.10.20),
-    caret (>= 6.0-86)
+    caret (>= 6.0-86),
+    limma (>= 3.40.6),
+    S4Vectors (>= 0.22.1)
 Suggests:
     princurve (>= 2.1.4),
     seriation (>= 1.2-7),
@@ -42,7 +43,10 @@ Suggests:
     shinystan (>= 2.5.0),
     knitr (>= 1.30)
 Remotes:
-    collectivemedia/tictoc
+    collectivemedia/tictoc,
+    DoseResponse/drc,
+    thomasp85/patchwork,
+    cole-trapnell-lab/monocle3
 Collage: 'geom_indicator.R',
     'read_well_scores.R',
     'plate_layout.R',
@@ -50,6 +54,7 @@ Collage: 'geom_indicator.R',
     'read_Zprime_by_plate.R',
     'model_cell_count_by_batch_vars.R',
     'model_score_by_batch_vars.R',
+    'monocle3_support.R',
     'plot_binomial_trial_credible_intervals.R',
     'plot_checkerboard_score_by_dose.R',
     'plot_feature_correlation_matrix.R',
