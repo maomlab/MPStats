@@ -4,7 +4,7 @@
 \alias{rankplot}
 \title{Customized rank plot}
 \usage{
-rankplot(model)
+rankplot(model, ...)
 }
 \arguments{
 \item{model}{brmsfit model}

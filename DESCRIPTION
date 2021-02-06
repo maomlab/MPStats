@@ -22,6 +22,7 @@ Imports:
     tictoc (>= 1.0),
     gplots (>= 3.0.1.2),
     ggplot2 (>= 1.0.1),
+    drcData (>= 1.1-3),
     drc (>= 3.0-1),
     brms (>= 2.14.2),
     bayesplot (>= 1.7.2),
@@ -44,6 +45,7 @@ Suggests:
     knitr (>= 1.30)
 Remotes:
     collectivemedia/tictoc,
+    DoseResponse/drcData,
     DoseResponse/drc,
     thomasp85/patchwork,
     cole-trapnell-lab/monocle3

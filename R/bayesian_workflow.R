@@ -31,7 +31,7 @@ traceplot <- function(model, ...) {
 #' @return ggplot2::ggplot object
 #'
 #' @export
-rankplot <- function(model) {
+rankplot <- function(model, ...) {
   bayesplot::mcmc_rank_overlay(model, ...) +
     ggplot2::ggtitle(
       label = paste0("Rank plot: ", model$name, " model"))
@@ -93,10 +93,11 @@ loo_R2_indicator <- function(model, digits = 2, ...) {
 #' The plot title uses `model$name`
 #' 
 #' @param model brmsfit model
+#' @param irq the interquantile range to plot
 #' @return ggplot2::ggplot object
 #'
 #' @export
-prior_posterior_plot <- function(model) {
+prior_posterior_plot <- function(model, irq = .95) {
   model_prior <- model %>%
     brms:::update.brmsfit(sample_prior = "only")
 
@@ -112,8 +113,8 @@ prior_posterior_plot <- function(model) {
     dplyr::filter(!stringr::str_detect(.variable, "__$")) %>%
     dplyr::group_by(.variable) %>%
       dplyr::filter(
-        .value < quantile(.value, 0.975),
-        .value > quantile(.value, 0.025)) %>%
+        .value < quantile(.value, 1 - (1-irq)/2),
+        .value > quantile(.value, (1 - irq)/2)) %>%
     dplyr::ungroup()
 
   ggplot2::ggplot(data = draws) +

@@ -11,10 +11,64 @@ date_code <- function(d=NA){
     sep="")
 }
 
-
-#' Variance of bayesian estimator for binomial trial with flat prior
+#' Extract row index from well identifier
 #' 
-#' The bayesian estimator for the success probability p from a binomial trial
+#' Convert e.g. 'H14' well identifier to 8 because 'H' is the 8th row.
+#' 
+#' @param well_id well index of the form e.g. 'H14'
+#' @return integer index corresponding to the row of the well
+#' 
+#' @export
+well_id_to_row <- function(well_id){
+  well_id %>%
+    stringr::str_extract("^[A-Z]") %>%
+    purrr::map_int(~which(LETTERS==., arr.ind=T))
+}
+
+#' Extract column index from well identifier
+#' 
+#' Convert e.g. 'H14' well identifier to 14 because '14' is the 14th row.
+#' 
+#' @param well_id well index of the form e.g. 'H14'
+#' @return integer index corresponding to the column of the well
+#' 
+#' @export
+well_id_to_column <- function(well_id){
+  well_id %>%
+    stringr::str_extract("[0-9]+$") %>%
+    as.integer()
+}
+
+
+
+#' Extract row index from well index
+#' 
+#' Convert e.g. '224' well index to 10 because it is on the 10th row in a 384 well plate
+#' 
+#' @param well_index well index of the form e.g. '224'
+#' @return integer index corresponding to the row of the well
+#' 
+#' @export
+well_index_to_row <- function(well_index){
+  floor((as.numeric(well_index) - 1) / 24) + 1
+}
+
+#' Extract column index from well index
+#' 
+#' Convert e.g. '224' well index to 8 because it is on the 8th column in a 384 well plate
+#' 
+#' @param well_index well index of the form e.g. '224'
+#' @return integer index corresponding to the column of the well
+#' 
+#' @export
+well_index_to_column <- function(well_index){
+  ((as.numeric(well_index) - 1) %% 24) + 1
+}
+
+
+#' Variance of Bayesian estimator for binomial trial with flat prior
+#' 
+#' The Bayesian estimator for the success probability p from a binomial trial
 #' with n successes and m failures and beta prior with rate parameters a and b is
 #'    posterior ~ prior * likelihood
 #'    posterior ~ Beta(a,b) * Binomial(n, m+n)

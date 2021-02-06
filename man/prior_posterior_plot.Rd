@@ -5,10 +5,12 @@
 \title{Create a plot that compares the distribution of prior and posterior
 marginal distributions for each variable}
 \usage{
-prior_posterior_plot(model)
+prior_posterior_plot(model, irq = 0.95)
 }
 \arguments{
 \item{model}{brmsfit model}
+
+\item{irq}{the interquantile range to plot}
 }
 \value{
 ggplot2::ggplot object
