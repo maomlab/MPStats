@@ -1,8 +1,4 @@
 
-library(plyr)
-library(tidyverse)
-library(monocle3)
-
 #' Popluate a Monocle3 cell data set from cell features
 #'
 #' The Monocle3 cell data set is a container
@@ -52,7 +48,7 @@ populate_cds <- function(
     }
     # unpack monocle3::new_cell_data_set(...)
     # to not use dgCMatrix for the expression matrix they are dense feature matrices
-    sce <- SingleCellExperiment(
+    sce <- SingleCellExperiment::SingleCellExperiment(
         list(counts = expression_data),
         rowData = gene_metadata,
         colData = cell_metadata)
@@ -61,7 +57,7 @@ populate_cds <- function(
         cat("Creating a Cell Data Set object ...\n")
     }
     cds <- methods::new(
-        Class = "cell_data_set",
+        Class = methods::getClass("cell_data_set", where = "monocle3"),
         assays = SummarizedExperiment::Assays(list(counts = expression_data)),
         colData = colData(sce),
         int_elementMetadata = int_elementMetadata(sce),
