@@ -3,7 +3,7 @@
 \name{generate_MuSyC_effects}
 \alias{generate_MuSyC_effects}
 \title{Drug Synergy
-Musyc Drug Synergy model}
+MuSyC Drug Synergy model}
 \usage{
 generate_MuSyC_effects(d1, d2, E0, s1, C1, E1, s2, C2, E2, alpha, E3)
 }

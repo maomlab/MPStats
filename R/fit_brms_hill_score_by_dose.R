@@ -1,8 +1,28 @@
 
 
+#' Simulate hill model from the parameters
+#' 
+#' @param log_dose log10(doses) at which to evaluate the model
+#' @param top top parameter
+#' @param bottom bottom parameter
+#' @param ic50 ic50 parameter
+#' @param hill hill parameter
+#' @return vector of values
+#' 
+#' @export
+generate_hill_effects <- function(
+  log_dose,
+  top,
+  bottom,
+  ic50,
+  hill) {
+  
+  brms::inv_logit_scaled(
+    x = hill * 4 / top * (log_dose - ic50),
+    lb = bottom,
+    ub = top)
 
-
-
+}
 
 
 #' brms hill model for score by compound dose
@@ -13,13 +33,13 @@
 #' @return list of brms::brmsfit objects one for each compound
 #' 
 #' @export
-fit_brms_hill_score_by_dose <- function(well_scores){
+fit_brms_hill_score_by_dose <- function(scores){
   
-  grouped_data <- well_scores %>%
+  grouped_data <- scores %>%
     dplyr::filter(!is_control) %>%
     dplyr::group_by(compound) %>%
     tidyr::nest()
-  
+
   model <- brms::brm_multiple(
     formula = brms::brmsformula(
       n_positive | trials(cell_count) ~ top * inv_logit(hill*4/top*(log_dose - ic50)),
