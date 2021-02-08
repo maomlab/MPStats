@@ -2,7 +2,7 @@
 % Please edit documentation in R/util.R
 \name{binomial_variance}
 \alias{binomial_variance}
-\title{Variance of bayesian estimator for binomial trial with flat prior}
+\title{Variance of Bayesian estimator for binomial trial with flat prior}
 \usage{
 binomial_variance(n_positive, n_trials, prior_positive = 1, prior_negative = 1)
 }
@@ -19,7 +19,7 @@ binomial_variance(n_positive, n_trials, prior_positive = 1, prior_negative = 1)
 variance of parameter estimate
 }
 \description{
-The bayesian estimator for the success probability p from a binomial trial
+The Bayesian estimator for the success probability p from a binomial trial
 with n successes and m failures and beta prior with rate parameters a and b is
    posterior ~ prior * likelihood
    posterior ~ Beta(a,b) * Binomial(n, m+n)

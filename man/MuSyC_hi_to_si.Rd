@@ -9,9 +9,9 @@ MuSyC_hi_to_si(hi, Ci, E0, Ei)
 \arguments{
 \item{Ci}{the IC50 of drug i}
 
-\item{E0}{the reponse with no treatments}
+\item{E0}{the response with no treatments}
 
-\item{Ei}{the reponse of inifinite drug i and no other treatments}
+\item{Ei}{the response of infinite drug i and no other treatments}
 
 \item{si}{slope of drug i at it's IC50 and doses of all other drugs are zero}
 }

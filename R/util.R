@@ -11,17 +11,71 @@ date_code <- function(d=NA){
     sep="")
 }
 
+#' Extract row index from well identifier
+#'
+#' Convert e.g. 'H14' well identifier to 8 because 'H' is the 8th row.
+#'
+#' @param well_id well index of the form e.g. 'H14'
+#' @return integer index corresponding to the row of the well
+#'
+#' @export
+well_id_to_row <- function(well_id){
+  well_id %>%
+    stringr::str_extract("^[A-Z]") %>%
+    purrr::map_int(~which(LETTERS==., arr.ind=T))
+}
 
-#' Variance of bayesian estimator for binomial trial with flat prior
-#' 
-#' The bayesian estimator for the success probability p from a binomial trial
+#' Extract column index from well identifier
+#'
+#' Convert e.g. 'H14' well identifier to 14 because '14' is the 14th row.
+#'
+#' @param well_id well index of the form e.g. 'H14'
+#' @return integer index corresponding to the column of the well
+#'
+#' @export
+well_id_to_column <- function(well_id){
+  well_id %>%
+    stringr::str_extract("[0-9]+$") %>%
+    as.integer()
+}
+
+
+
+#' Extract row index from well index
+#'
+#' Convert e.g. '224' well index to 10 because it is on the 10th row in a 384 well plate
+#'
+#' @param well_index well index of the form e.g. '224'
+#' @return integer index corresponding to the row of the well
+#'
+#' @export
+well_index_to_row <- function(well_index){
+  floor((as.numeric(well_index) - 1) / 24) + 1
+}
+
+#' Extract column index from well index
+#'
+#' Convert e.g. '224' well index to 8 because it is on the 8th column in a 384 well plate
+#'
+#' @param well_index well index of the form e.g. '224'
+#' @return integer index corresponding to the column of the well
+#'
+#' @export
+well_index_to_column <- function(well_index){
+  ((as.numeric(well_index) - 1) %% 24) + 1
+}
+
+
+#' Variance of Bayesian estimator for binomial trial with flat prior
+#'
+#' The Bayesian estimator for the success probability p from a binomial trial
 #' with n successes and m failures and beta prior with rate parameters a and b is
 #'    posterior ~ prior * likelihood
 #'    posterior ~ Beta(a,b) * Binomial(n, m+n)
 #'    posterior ~ p^(a-1) * (1-p)^(b-1) * p^n * (1-p)^m
 #'    posterior ~ p^(n+a-1) * (1-p)^(m+b-1)
 #'    posterior ~ Beta(n+a,m+b)
-#'    
+#'
 #' A flat prior is a Beta(a=1, b=1), so the estimate of the posterior distribution
 #' for p is Beta(n+1, m+1). One way to think of this is that since the beta distribution is
 #' the congugate prior to the binomial distribution, the flat prior effectively adds one
@@ -30,13 +84,13 @@ date_code <- function(d=NA){
 #' The variance of a Beta distribution is
 #'
 #'    var[Beta(a,b)] = a*b/((a+b)^2(a+b+1))
-#'    
+#'
 #' so the variance of the posteriror is
-#' 
+#'
 #'    var[posterior] = var[Beta(n+1,m+1)] = (n+1)(m+1)/((n+m+2)^2 * (n+m+3))
-#' 
+#'
 #' Ref: https://stats.stackexchange.com/questions/185221/binomial-uniform-prior-bayesian-statistics
-#' 
+#'
 #' @param n_positive number of successes in binomial trial
 #' @param n_trials number of binomial trials
 #' @param prior_positive number of pseudo successes to add as prior
@@ -52,10 +106,10 @@ binomial_variance <- function(n_positive, n_trials, prior_positive=1, prior_nega
 }
 
 #' Quantile of bayesian estimator for binomial trial with flat prior
-#' 
+#'
 #' Using the above derivation, the bayesian estimator for the success probability p
 #' from a binomial trial with n successes and m failures and flat prior is Beta(n+1, m+1).
-#' 
+#'
 #' @param n_positive number of successes in binomial trial
 #' @param n_trials number of binomial trials
 #' @param p probability quantile to return
@@ -66,28 +120,28 @@ binomial_quantile <- function(n_positive, n_trials, p){
 }
 
 #' Quantile of bayesian estimators for samples of a poisson process
-#' 
+#'
 #' The gamma distribution is the congugate prior for the poisson distribution. Given a prior `Gamma(k,theta)``,
 #' and poisson observations `k_1, k_2, ..., k_n`, the bayesian estimator for the posterior is
-#' 
+#'
 #'      Gamma(k + sum k_i, n + theta)
-#' 
+#'
 #' So the prior can be thought of as adding `theta` pseudo observations each with a count value of `k/theta`.
-#' 
+#'
 #' Example:
-#' 
+#'
 #'     Say we have collected a sample of 3 counts with values `counts <- c(120, 130, 125)`
 #'     then the 95% credible interval for the rate poisson rate parameter is
-#'     
+#'
 #'          low <- poisson_quantile(counts, .025)
 #'          high <- poisson_quantile(counts, .975)
-#'          
+#'
 #'     Now say we have a prior equivilent to a single count with 124, then we would add 124 to the counts vector:
-#'     
+#'
 #'            counts <- c(120, 130, 125) + c(124)
 #'            low <- poisson_quantile(counts, .025)
 #'            high <- poisson_quantile(counts, .975)
-#'     
+#'
 #' @param count vector of n counts, assumed to be samples from a poisson process
 #' @param probability quantile to return
 #' @return count value of the given quantile of the posterior estimator for the poisson process
@@ -98,7 +152,7 @@ poisson_quantile <- function(count, p){
 }
 
 #' Univrsity of Michigan colors
-#' 
+#'
 #' https://med.umich.edu/branding/color.html
 #' @export
 umich_colors <- c(
@@ -120,8 +174,14 @@ umich_colors <- c(
   arboretum_blue = "#0174BB",
   dusty_blue = "#9FB6BC",
   grey_blue = "#465E85")
-  
 
+#' Set bayesplot theme to MPStat defaults
+#'
+#' @export
+bayesplot_theme <- function() {
+    bayesplot::bayesplot_theme_update(
+        text = element_text(size = 12, family = "sans"))
+}
 
 #' @importFrom magrittr %>%
 NULL

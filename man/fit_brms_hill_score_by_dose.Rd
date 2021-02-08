@@ -4,7 +4,7 @@
 \alias{fit_brms_hill_score_by_dose}
 \title{brms hill model for score by compound dose}
 \usage{
-fit_brms_hill_score_by_dose(well_scores)
+fit_brms_hill_score_by_dose(scores)
 }
 \arguments{
 \item{well_scores}{tibble::tibble as output by read_well_scores}

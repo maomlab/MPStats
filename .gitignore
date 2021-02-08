@@ -12,14 +12,5 @@ inst/doc
 \#*\#
 .DS_Store
 Icon?
-vignettes/AGM_chapter/raw_data/AGM_FeatureSet_RAW55.csv
-vignettes/AGM_chapter/intermediate_data/*
-vignettes/AGM_chapter/product/*
-vignettes/SARS-CoV-2/raw_data/*
-vignettes/SARS-CoV-2/intermediate_data/*
-vignettes/SARS-CoV-2/product/*
-vignettes/PAINS/raw_data/*
-vignettes/PAINS/intermediate_data/*
-vignnetes/PAINS/product/*
 Rplots.pdf
 *.parquet
