@@ -257,7 +257,7 @@ test_well_scores <- expand.grid(
     dplyr::ungroup() %>%
     dplyr::mutate(
         count = 1000,
-        n_positive = rbinom(n=21*21, count, prob=Ed))
+        n_positive = rbinom(n= 21 * 21, count, prob  =Ed))
 
 devtools::load_all()
 synergy_model_t3 <- test_well_scores %>%
@@ -268,4 +268,122 @@ synergy_model_t3 <- test_well_scores %>%
         silent = FALSE,
         future = FALSE)
 
+
+
+########################
+# Model Overdispersion #
+########################
+#
+#
+# n_positive | trials(count_total) ~ 0 + treatment
+# family = binomial('logit')
+# 
+#   binomial_logit_lpmf(Y | trials, alpha)
+#        The log binomial probability mass of <Y> successes in <trials> trials
+#        given logit-scaled chance of success <alpha>
+#        choose(trials, Y) (inv_logit(alpha))^Y(1-inv_logit(alpha))^(trials - Y)
+#   Y = n_positive
+#   trials = count_total
+#   alpha = treatment * b
+
+# n_positive ~ 0 + treatment
+# shape ~ 0 + count_total
+# family = negbinomial(link = "identity", link_shape = "idenity")
+#        choose(Y + shape - 1, Y) *
+#        (mu/(mu + shape)^Y*
+#        (shape/(mu + shape))^shape
+#        
+#   neg_binomial_2_lpmf(Y | mu, shape)
+#   Y = n_positive
+#   mu = treatment * b
+#   shape = total_count * b_shape
+
+
+
+# data description
+# N treatments are collected over [-5, 5] each to a population of size norm(300, .2)
+# each containing 30 sensitive units. 
+
+n_samples <- 50
+data <- tibble::tibble(
+    treatment = seq(-5, 5, length.out = n_samples),
+    count_sensitive = rep(30, n_samples)) %>%
+    dplyr::mutate(
+        theta = .3 * treatment,
+        count_total =
+            ceiling(rnorm(n = n_samples, mean = 10, sd = .2) * count_sensitive),
+        n_positive = rbinom(
+            n = n_samples,
+            size = count_sensitive,
+            prob = brms::inv_logit_scaled(theta)))
+
+# v1
+model <- brms::brm(
+    formula = brms::brmsformula(
+        n_positive | trials(count_total) ~ 0 + treatment),
+    data = data,
+    family = binomial("logit"))
+# data {
+#   int<lower=1> N;  // total number of observations
+#   int Y[N];  // response variable
+#   int trials[N];  // number of trials
+#   int<lower=1> K;  // number of population-level effects
+#   matrix[N, K] X;  // population-level design matrix
+# }
+# parameters {
+#   vector[K] b;  // population-level effects
+# }
+# model {
+#   vector[N] mu = X * b;
+#   target += binomial_logit_lpmf(Y | trials, mu);
+# }
+
+#v2
+model2_code <- brms::make_stancode(
+    formula = brms::brmsformula(
+        n_positive ~ 0 + treatment,
+        shape ~ 0 + count_total),
+    data = data,
+    family = brms::negbinomial(
+        link = "log",
+        link_shape = "identity"))
+
+model2 <- brms::brm(
+    formula = brms::brmsformula(
+        n_positive ~ 0 + treatment,
+        shape ~ 0 + count_total),
+    data = data,
+    family = brms::negbinomial(
+        link = "log",
+        link_shape = "identity"))
+
+
+#v3
+model3_code <- brms::make_stancode(
+    formula = brms::brmsformula(
+        n_positive ~ 0 + treatment,
+        shape ~ 0 + count_total),
+    data = data,
+    family = brms::negbinomial(
+        link = "identity",
+        link_shape = "identity"))
+
+
+model3 <- brms::brm(
+    formula = brms::brmsformula(
+        n_positive ~ 0 + treatment,
+        shape ~ 0 + count_total),
+    data = data,
+    family = brms::negbinomial(
+        link = "log",
+        link_shape = "identity"))
+
+
+model3 <- brms::brm(
+    formula = brms::brmsformula(
+        n_positive ~ 0 + treatment + log(count_total)),
+    data = data,
+    family = brms::negbinomial())
+#        link = "log",
+#        link_shape = "identity"))
 

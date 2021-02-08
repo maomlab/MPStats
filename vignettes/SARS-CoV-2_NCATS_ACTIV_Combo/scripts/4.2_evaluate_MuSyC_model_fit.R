@@ -1,4 +1,3 @@
-
 library(plyr)
 library(tidyverse)
 library(shinystan)
@@ -8,6 +7,15 @@ library(tidybayes)
 library(rstan)
 library(brms)
 
+load("intermediate_data/synergy_model_combined_v4.Rdata")
+
+model <- synergy_model_combined_v4
+model_tag <- "synergy_model_combined_v4"
+model_label <- "MuSyC combined with plate_id batch effects"
+
+dir.create(paste0("product/", model_tag, "/figures/batch_effects"), recursive = TRUE)
+
+model %>% brms::expose_functions(vectorize = TRUE)
 
 well_scores <- readr::read_tsv("intermediate_data/well_scores.tsv") %>%
     dplyr::mutate(
@@ -24,7 +32,7 @@ well_scores <- readr::read_tsv("intermediate_data/well_scores.tsv") %>%
 #############################
 
 # interactively look for problems with the model fit
-synergy_model_v10$model[[5]] %>%
+model %>%
     shinystan::launch_shinystan()
 
 
@@ -32,15 +40,16 @@ synergy_model_v10$model[[5]] %>%
 # LOO Cross Validation #
 ########################
 
-models <- synergy_model_v10$model %>%
-    purrr::map(function(model) {
-        cat("Computing loo \n", sep = "")
-        model %>% brms::add_criterion(
-                criterion = "loo",
-                reloo = TRUE,
-                cores = 4)
-     })
+model <- model %>%
+    brms::add_criterion(
+        criterion = "loo",
+        moment_match = TRUE,
+        reloo = FALSE)
 
+loo_cv <- brms::reloo(
+    x = model,
+    loo = model$criteria$loo,
+    future = TRUE)
 
 #############################################
 # prior vs posterior marginal distributions #
@@ -66,13 +75,13 @@ prior_draws <- synergy_model_v12_prior %>%
             tidybayes::spread_draws(
                 b_logE0_Intercept,
                 b_logE1_Intercept, b_logC1_Intercept, b_h1_Intercept,
-                b_logE2_Intercept, b_logC2_Intercept, b_h2_Intercept,                
+                b_logE2_Intercept, b_logC2_Intercept, b_h2_Intercept,
                 b_logE3_Intercept, b_logalpha_Intercept)
     }) %>%
     tidyr::pivot_longer(
         cols = -tidyselect::starts_with("."),
         names_to = "parameter",
-        values_to = "value")    
+        values_to = "value")
 
 posterior_draws <- synergy_model_v11 %>%
     dplyr::rowwise() %>%
@@ -82,7 +91,7 @@ posterior_draws <- synergy_model_v11 %>%
             tidybayes::spread_draws(
                 b_logE0_Intercept,
                 b_logE1_Intercept, b_logC1_Intercept, b_h1_Intercept,
-                b_logE2_Intercept, b_logC2_Intercept, b_h2_Intercept,                
+                b_logE2_Intercept, b_logC2_Intercept, b_h2_Intercept,
                 b_logE3_Intercept, b_logalpha_Intercept)
     }) %>%
     tidyr::pivot_longer(
@@ -106,9 +115,14 @@ ggplot2::ggplot(data = data) +
     ggplot2::facet_wrap(
         facets = dplyr::vars(parameter),
         scales = "free")
-    
+
 ggplot2::ggsave(
-    filename = "product/figures/MuSyC_prior_posterior_marginal_distributions.pdf",
+    filename = paste0(
+        "product/", model_tag, "/figures/MuSyC_prior_posterior_marginal_distributions_", MPStats::date_code(), ".pdf"),
+    width = 8, height = 5)
+ggplot2::ggsave(
+    filename = paste0(
+        "product/", model_tag, "/figures/MuSyC_prior_posterior_marginal_distributions_", MPStats::date_code(), ".png"),
     width = 8, height = 5)
 
 
@@ -140,7 +154,10 @@ ggplot2::ggplot(data = data) +
         "Chain")
 
 ggplot2::ggsave(
-    filename = "product/figures/MuSyC_prosterior_rank_by_chain.pdf",
+    filename = paste0("product/", model_tag, "/figures/MuSyC_prosterior_rank_by_chain_", MPStats::date_code(), ".pdf"),
+    width = 8, height = 5)
+ggplot2::ggsave(
+    filename = paste0("product/", model_tag, "/figures/MuSyC_prosterior_rank_by_chain_", MPStats::date_code(), ".png"),
     width = 8, height = 5)
 
 ###############################
@@ -148,9 +165,6 @@ ggplot2::ggsave(
 ###############################
 
 # https://www.rdocumentation.org/packages/bayesplot/versions/0.0.12/topics/PPC-overview
-
-model <- synergy_model_v10$model[[1]]
-model %>% brms::expose_functions(vectorize = TRUE)
 
 model %>% brms::pp_check(type='error_scatter_avg')
 model %>% brms::pp_check(type = "stat_grouped", stat = "std", group = "plate_id")
@@ -167,14 +181,12 @@ model %>% brms::pp_check(type = "loo_pit")
 ###########
 # can the error be explained by batch effects?
 
-z <- model %>% brms::pp_check(type='error_scatter_avg')
+z <- model %>% brms::pp_check(type = 'error_scatter_avg')
 
 pp_data <- z$data %>%
-    dplyr::bind_cols(
-        well_scores %>%
-        dplyr::filter(drug_combo == "GS-441524_Tizoxanide")) %>%
+    dplyr::bind_cols(well_scores) %>%
     dplyr::mutate(
-        rel_error = (n_positive - avg_error)/n_positive)
+        rel_error = (n_positive - avg_error) / n_positive)
 
 # average error by n_positive
 plot <- ggplot2::ggplot(data = pp_data) +
@@ -194,7 +206,7 @@ plot <- ggplot2::ggplot(data = pp_data) +
             y = avg_error,
             color = plate_id,
             group = plate_id),
-        se=FALSE) +
+        se = FALSE) +
     ggplot2::scale_y_continuous(
         "Average MuSyC model error") +
     ggplot2::scale_x_continuous(
@@ -202,16 +214,16 @@ plot <- ggplot2::ggplot(data = pp_data) +
         breaks = log10(c(0, 3, 10, 30, 100, 300, 1000)+1),
         labels = c("0", "3", "10", "30", "100", "300", "1000")) +
     ggplot2::ggtitle(
-        label = "Average MuSyC model error by number of infected cells per well") 
+        label = "Average MuSyC model error by number of infected cells per well")
 
 ggplot2::ggsave(
-    filename = "product/figures/batch_effects/MuSyC_average_error_by_n_positive_plate_id_20201130.pdf",
+    filename = paste0("product/", model_tag, "/figures/batch_effects/MuSyC_average_error_by_n_positive_plate_id_", MPStats::date_code(), ".pdf"),
     width = 6,
     height = 4,
     useDingbats=FALSE)
 
 ggplot2::ggsave(
-    filename = "product/figures/batch_effects/MuSyC_average_error_by_n_positive_plate_id_20201130.png",
+    filename = paste0("product/", model_tag, "/figures/batch_effects/MuSyC_average_error_by_n_positive_plate_id_", MPStats::date_code(), ".png"),
     width = 6,
     height = 4)
 
@@ -241,16 +253,16 @@ plot <- ggplot2::ggplot(data = pp_data) +
         breaks = log10(c(0, 3, 10, 30, 100, 300, 1000)+1),
         labels = c("0", "3", "10", "30", "100", "300", "1000")) +
     ggplot2::ggtitle(
-        label = "Average MuSyC model error by number of infected cells per well") 
+        label = "Average MuSyC model error by number of infected cells per well")
 
 ggplot2::ggsave(
-    filename = "product/figures/batch_effects/MuSyC_average_rel_error_by_n_positive_plate_id_20201130.pdf",
+    filename = paste0("product/", model_tag, "/figures/batch_effects/MuSyC_average_rel_error_by_n_positive_plate_id_", MPStats::date_code(), ".pdf"),
     width = 6,
     height = 4,
     useDingbats=FALSE)
 
 ggplot2::ggsave(
-    filename = "product/figures/batch_effects/MuSyC_average_rel_error_by_n_positive_plate_id_20201130.png",
+    filename = paste0("product/", model_tag, "/figures/batch_effects/MuSyC_average_rel_error_by_n_positive_plate_id_", MPStats::date_code(), ".png"),
     width = 6,
     height = 4)
 
@@ -281,16 +293,16 @@ plot <- ggplot2::ggplot(data = pp_data) +
         breaks = log10(c(1000, 2500, 5000, 10000)),
         labels = c("1k", "2.5k", "5k", "10k")) +
     ggplot2::ggtitle(
-        label = "Average MuSyC model error by number of cells per well") 
+        label = "Average MuSyC model error by number of cells per well")
 
 ggplot2::ggsave(
-    filename = "product/figures/batch_effects/MuSyC_average_error_by_count_plate_id_20201130.pdf",
+    filename = paste0("product/", model_tag, "/figures/batch_effects/MuSyC_average_error_by_count_plate_id_", MPStats::date_code(), ".pdf"),
     width = 6,
     height = 4,
     useDingbats=FALSE)
 
 ggplot2::ggsave(
-    filename = "product/figures/batch_effects/MuSyC_average_error_by_count_plate_id_20201130.png",
+    filename = paste0("product/", model_tag, "/figures/batch_effects/MuSyC_average_error_by_count_plate_id_", MPStats::date_code(), ".png"),
     width = 6,
     height = 4)
 
@@ -320,16 +332,16 @@ plot <- ggplot2::ggplot(data = pp_data) +
         "% infected cells per well",
         labels = scales::percent_format()) +
     ggplot2::ggtitle(
-        label = "Average MuSyC model error by % infected cells per well") 
+        label = "Average MuSyC model error by % infected cells per well")
 
 ggplot2::ggsave(
-    filename = "product/figures/batch_effects/MuSyC_average_error_by_score_plate_id_20201130.pdf",
+    filename = paste0("product/", model_tag, "/figures/batch_effects/MuSyC_average_error_by_score_plate_id_", MPStats::date_code(), ".pdf"),
     width = 6,
     height = 4,
-    useDingbats=FALSE)
+    useDingbats = FALSE)
 
 ggplot2::ggsave(
-    filename = "product/figures/batch_effects/MuSyC_average_error_by_score_plate_id_20201130.png",
+    filename = paste0("product/", model_tag, "/figures/batch_effects/MuSyC_average_error_by_score_plate_id_", MPStats::date_code(), ".png"),
     width = 6,
     height = 4)
 
@@ -384,16 +396,57 @@ plot <- ggplot2::ggplot(data = data) +
         label = "Predicted vs observed infected cells by cells per well")
 
 ggplot2::ggsave(
-    filename = "product/figures/batch_effects/MuSyC_n_pos_vs_count_pred_vs_data_plate_id_20201130.pdf",
+    filename = paste0("product/", model_tag, "/figures/batch_effects/MuSyC_n_pos_vs_count_pred_vs_data_plate_id_", MPStats::date_code(), ".pdf"),
     width = 9,
     height = 4,
-    useDingbats=FALSE)
+    useDingbats = FALSE)
 
 ggplot2::ggsave(
-    filename = "product/figures/batch_effects/MuSyC_n_pos_vs_count_pred_vs_data_plate_id_20201130.png",
+    filename = paste0("product/", model_tag, "/figures/batch_effects/MuSyC_n_pos_vs_count_pred_vs_data_plate_id_", MPStats::date_code(), ".png"),
     width = 9,
     height = 4)
 
+
+
+# relerror by n_positive
+plot <- ggplot2::ggplot(data = pp_data) +
+    ggplot2::theme_bw() +
+    ggplot2::theme(legend.position = c(0.85, 0.75)) +
+    ggplot2::geom_point(
+        mapping = ggplot2::aes(
+            x = (n_positive - avg_error) / count,
+            y = log10(rel_error),
+            fill = plate_id,
+            color = plate_id),
+        size = 1,
+        alpha = .5) +
+    ggplot2::geom_smooth(
+        mapping = ggplot2::aes(
+            x = (n_positive - avg_error) / count,
+            y = log10(rel_error),
+            color = plate_id,
+            group = plate_id),
+        se = FALSE,
+        method = "lm",
+        formula = y ~ 1) +
+    ggplot2::scale_x_continuous(
+        "Predicted % infected cells per well",
+        labels = scales::percent_format()) +
+    ggplot2::scale_y_continuous(
+        "relative error") +
+    ggplot2::ggtitle(
+        label = "Average MuSyC model relative error by predicted % infected cells per well")
+
+ggplot2::ggsave(
+    filename = paste0("product/", model_tag, "/figures/batch_effects/MuSyC_average_rel_error_by_pred_n_positive_plate_id_", MPStats::date_code(), ".pdf"),
+    width = 6,
+    height = 4,
+    useDingbats = FALSE)
+
+ggplot2::ggsave(
+    filename = paste0("product/", model_tag, "/figures/batch_effects/MuSyC_average_rel_error_by_pred_n_positive_plate_id_", MPStats::date_code(), ".png"),
+    width = 6,
+    height = 4)
 
 
 
@@ -449,3 +502,7 @@ bayesplot::ppc_loo_pit_overlay(
 z <- well_scores %>%
     tidybayes::add_residual_draws(
         synergy_model_v11$model[[1]])
+
+
+
+
