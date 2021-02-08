@@ -27,12 +27,12 @@ Example:
 
     Say we have collected a sample of 3 counts with values `counts <- c(120, 130, 125)`
     then the 95% credible interval for the rate poisson rate parameter is
-    
+
          low <- poisson_quantile(counts, .025)
          high <- poisson_quantile(counts, .975)
-         
+
     Now say we have a prior equivilent to a single count with 124, then we would add 124 to the counts vector:
-    
+
            counts <- c(120, 130, 125) + c(124)
            low <- poisson_quantile(counts, .025)
            high <- poisson_quantile(counts, .975)
