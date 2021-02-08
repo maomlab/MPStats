@@ -3,17 +3,26 @@ library(plyr)
 library(tidyverse)
 library(arrow)
 library(caret)
+library(MPstats)
 
 source("scripts/make_scatter_boards.R")
 
 
-data_path <- "intermediate_data/infected_patch_1999B_2020A_2021A_20201017"
-
-viral_features <- arrow::read_parquet(
+single_data_path <- "intermediate_data/infected_patch_999A_20201112"
+single_viral_features <- arrow::read_parquet(
     file = paste0(data_path, "/viral_features.parquet"))
-viral_feature_columns <- readr::read_tsv(
+single_viral_feature_columns <- readr::read_tsv(
     file = paste0(data_path, "/viral_feature_columns.tsv"))
-viral_metadata_columns <- readr::read_tsv(
+single_viral_metadata_columns <- readr::read_tsv(
+    file = paste0(data_path, "/viral_metadata_columns.tsv"))
+
+
+combo_data_path <- "intermediate_data/infected_patch_1999B_2020A_2021A_20201017"
+combo_viral_features <- arrow::read_parquet(
+    file = paste0(data_path, "/viral_features.parquet"))
+combo_viral_feature_columns <- readr::read_tsv(
+    file = paste0(data_path, "/viral_feature_columns.tsv"))
+combo_viral_metadata_columns <- readr::read_tsv(
     file = paste0(data_path, "/viral_metadata_columns.tsv"))
 
 
@@ -262,8 +271,7 @@ viral_embed_features <- dplyr::bind_cols(
     arrow::read_parquet(paste0(data_path, "/viral_plate_scaled_MasterDataTable.parquet")),
     arrow::read_parquet(paste0(embedding_path, "/umap_embedding.parquet")))
 
-source("scripts/monocle3_support.R")
-infected_cds <- populate_cds(
+infected_cds <- MPStats::populate_cds(
     cell_features = viral_embed_features,
     cell_feature_columns = viral_feature_columns,
     cell_metadata_columns = viral_metadata_columns,
@@ -279,7 +287,7 @@ infected_cds <- infected_cds %>%
         resolution = .00001,
         num_iter = 10,
         verbose = TRUE)
-infected_cds %>% serialize_clusters(
+infected_cds %>% MPStats::serialize_clusters(
     output_fname = paste0(embedding_path, "/clusters_leiden_res=5e-5.parquet"))
 
 # as resolution gets bigger --> more clusters
@@ -290,7 +298,7 @@ infected_cds <- infected_cds %>%
         resolution = .0001,
         num_iter = 10,
         verbose = TRUE)
-infected_cds %>% serialize_clusters(
+infected_cds %>% MPStats::serialize_clusters(
     output_fname = paste0(embedding_path, "/clusters_leiden_res=5e-4.parquet"))
 
 system(paste0("cd ", embedding_path, " && ln -s clusters_leiden_res=5e-4.parquet clusters.parquet"))
@@ -303,7 +311,7 @@ infected_cds <- infected_cds %>%
         resolution = .001,
         num_iter = 10,
         verbose = TRUE)
-infected_cds %>% serialize_clusters(
+infected_cds %>% MPStats::serialize_clusters(
     output_fname = paste0(embedding_path, "/clusters_leiden_res=5e-3.parquet"))
 
 system(paste0("cd ", embedding_path, " && ln -s clusters_leiden_res=5e-3.parquet clusters.parquet"))

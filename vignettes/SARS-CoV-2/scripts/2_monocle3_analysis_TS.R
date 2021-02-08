@@ -3,7 +3,7 @@ library(tidyverse)
 library(arrow)
 library(monocle3)
 library(BiocNeighbors)
-
+library(MPStats)
 
 # gathered in 3_pseudo_time_202006_UMAP_embedding
 cell_features <- arrow::read_parquet(
@@ -12,8 +12,7 @@ cell_features <- arrow::read_parquet(
 embedding <- arrow::read_parquet(
     "~/opt/MPLearn/vignettes/SARS-CoV-2/S25/intermediate_data/UMAP_embedding_TS_scaled_full/umap_embedding.parquet")
 
-source("scripts/monocle3_support.R")
-cds <- populate_cds(
+cds <- MPStats::populate_cds(
     cell_features = cell_features,
     cell_feature_columns = cell_feature_columns,
     cell_metadata_columns = cell_metadata_columns,

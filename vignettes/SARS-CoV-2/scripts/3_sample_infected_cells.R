@@ -168,8 +168,8 @@ cell_metadata_columns <- data.frame(feature = infected_cell_features %>% names) 
     dplyr::anti_join(cell_feature_columns, by = "feature")
 
 
-source("scripts/monocle3_support.R")
-infected_cds <- populate_cds(
+
+infected_cds <- MPStats::populate_cds(
     cell_features = infected_cell_features,
     cell_feature_columns = cell_feature_columns,
     cell_metadata_columns = cell_metadata_columns,
@@ -177,7 +177,7 @@ infected_cds <- populate_cds(
     embedding = infected_cell_features %>% dplyr::select(UMAP_1, UMAP_2),
     verbose = TRUE)
 
-infected_cds %>% serialize_clusters(
+infected_cds %>% MPStats::serialize_clusters(
     output_fname = "~/opt/MPLearn/vignettes/SARS-CoV-2/S25/intermediate_data/UMAP_embedding_top_hits_infected_plate_scaled_epochs=2000_re_embed_epochs=2000_200730/clusters_leiden_res=5e-7.parquet")
 # as resolution gets bigger --> more clusters
 infected_cds <- infected_cds %>%
@@ -186,7 +186,7 @@ infected_cds <- infected_cds %>%
         resolution = .00001,
         num_iter = 10,
         verbose = TRUE)
-infected_cds %>% serialize_clusters(
+infected_cds %>% MPStats::serialize_clusters(
     output_fname = "~/opt/MPLearn/vignettes/SARS-CoV-2/S25/intermediate_data/UMAP_embedding_top_hits_infected_plate_scaled_epochs=2000_re_embed_epochs=2000_200730/clusters_leiden_k=200_res=1e-5.parquet")
 
 #infected_cds <- infected_cds %>%

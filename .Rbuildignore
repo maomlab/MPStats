@@ -1,2 +1,6 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^vignettes/SARS-CoV-2/raw_data$
+^vignettes/SARS-CoV-2/intermediate_data$
+^vignettes/SARS-CoV-2/product$
+

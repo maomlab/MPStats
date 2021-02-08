@@ -1,8 +1,4 @@
 
-library(plyr)
-library(tidyverse)
-library(monocle3)
-
 #' Popluate a Monocle3 cell data set from cell features
 #'
 #' The Monocle3 cell data set is a container
@@ -15,7 +11,7 @@ library(monocle3)
 #' @param cell_metadata
 #'        rows: cells, columns cell metadata
 #'
-#' 
+#' @export
 populate_cds <- function(
     cell_features,
     cell_feature_columns,
@@ -88,7 +84,15 @@ populate_cds <- function(
     cds
 }
 
-
+#' Write out clusters from monocle3 cell dataset
+#'
+#' @param cds monocle3 cell dataset
+#' @param output_fname path to output parquet file where the clusters should be written
+#'                     the data has a single column [cluster_label] with values for each object
+#' @param reduction_method the reduction method for which the clusters were computed [default: UMAP]
+#' @param verbose verbose output [default: FALSE]
+#'
+#' @export
 serialize_clusters <- function(
     cds,
     output_fname,
