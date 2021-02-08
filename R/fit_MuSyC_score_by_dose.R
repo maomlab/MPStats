@@ -49,8 +49,8 @@ MuSyC_si_to_hi <- function(si, Ci, E0, Ei){
 #'
 #' @param si slope of drug i at it's IC50 and doses of all other drugs are zero
 #' @param Ci the IC50 of drug i
-#' @param E0 the reponse with no treatments
-#' @param Ei the reponse of inifinite drug i and no other treatments
+#' @param E0 the response with no treatments
+#' @param Ei the response of infinite drug i and no other treatments
 #' @return hi the exponent in the MuSyC equation for drug i
 #'
 #'@export
@@ -60,7 +60,7 @@ MuSyC_hi_to_si <- function(hi, Ci, E0, Ei){
 
 
 #' Drug Synergy
-#' Musyc Drug Synergy model
+#' MuSyC Drug Synergy model
 #'
 #' Assume that the response metric decreases with more effective drugs
 #' Let E3 be the effect at the maximum concentration of both drugs
