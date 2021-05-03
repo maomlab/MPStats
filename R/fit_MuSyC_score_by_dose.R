@@ -426,28 +426,102 @@ MuSyC_default_prior <- function() {
 }
 
 #'@export
-MuSyC_default_inits <- function() {
-    list(
-        b_logC1 = as.array(0.0),
-        b_logC2 = as.array(0.0),
-        b_h1 = as.array(MuSyC_si_to_hi(si = 1, Ci = 1, E0 = 1, Ei = 0.0)),
-        b_h2 = as.array(MuSyC_si_to_hi(si = 1, Ci = 1, E0 = 1, Ei = 0.0)),
-        b_logalpha = as.array(0),
-        b_logE0 = as.array(log(0.5)),
-        b_logE1 = as.array(log(0.25)),
-        b_logE2 = as.array(log(0.25)),
-        b_logE3 = as.array(log(0.25)))
+MuSyC_default_inits <- function(
+    n_plates = 1,
+    n_sample1 = 1,
+    n_sample2 = 1) {
+    cat("Generating default inits for ", n_sample1, " x ", n_sample2, " samples\n", sep = "")
+    inits_fn <- function() {
+        list(
+            b_logE0 = 0.5 %>% log() %>% rep(times = n_plates) %>% as.array(),
+            b_logC1 = 0.0 %>% rep(times = n_sample1) %>% as.array(),
+            b_logE1 = 0.25 %>% log() %>% rep(times = n_sample1) %>% as.array(),
+            b_h1 = MuSyC_si_to_hi(si = 1, Ci = 1, E0 = 1, Ei = 0.0) %>%
+                rep(times = n_sample1) %>%
+                as.array(),
+            b_logC2 = 0.0 %>% rep(times = n_sample2) %>% as.array(),
+            b_logE2 = 0.25 %>% log() %>% rep(times = n_sample2) %>% as.array(),
+            b_h2 = MuSyC_si_to_hi(si = 1, Ci = 1, E0 = 1, Ei = 0.0) %>%
+                rep(times = n_sample2) %>%
+                as.array(),
+            b_logalpha = 0.0 %>% rep(times = n_sample1*n_sample2) %>% as.array(),
+            b_logE3 = 0.25 %>% log() %>% rep(times = n_sample1*n_sample2) %>% as.array)
+    }
 }
 
+MuSyC_function_stanvar <- brms::stanvar(
+    scode = paste(
+        "  real MuSyC(",
+        "    real logd1, real logd2,",
+        "    real logE0,",
+        "    real logC1, real logE1, real h1,",
+        "    real logC2, real logE2, real h2,",
+        "    real logE3, real logalpha) {",
+        "      vector[4] numerator_parts;",
+        "      vector[4] denominator_parts;",
+        "      numerator_parts[1] = h1*logC1 + h2*logC2 + logE0;",
+        "      denominator_parts[1] = h1*logC1 + h2*logC2;",
+        "      if( logd1 > negative_infinity() ) {",
+        "        numerator_parts[2] = h1*logd1 + h2*logC2 + logE1;",
+        "        denominator_parts[2] = h1*logd1 + h2*logC2;",
+        "      } else {",
+        "        numerator_parts[2] = negative_infinity();",
+        "        denominator_parts[2] = negative_infinity();",
+        "      }",
+        "      if( logd2 > negative_infinity() ) {",
+        "        numerator_parts[3] = h1*logC1 + h2*logd2 + logE2;",
+        "        denominator_parts[3] = h1*logC1 + h2*logd2;",
+        "      } else {",
+        "        numerator_parts[3] = negative_infinity();",
+        "        denominator_parts[3] = negative_infinity();",
+        "      }",
+        "      if( (logd1 > negative_infinity()) && (logd2 > negative_infinity())) {",
+        "        numerator_parts[4] = h1*logd1 + h2*logd2 + logE3 + logalpha;",
+        "        denominator_parts[4] = h1*logd1 + h2*logd2 + logalpha;",
+        "      } else {",
+        "        numerator_parts[4] = negative_infinity();",
+        "        denominator_parts[4] = negative_infinity();",
+        "      }",
+        "      return exp(log_sum_exp(numerator_parts) - log_sum_exp(denominator_parts));",
+        "  }", sep = "\n"),
+    block = "functions")
+
+MuSyC_genquant_stanvar <- brms::stanvar(
+    scode = paste(
+      "  real E0 = exp(b_logE0[1]);",
+      "  real E1 = exp(b_logE1[1]);",
+      "  real E2 = exp(b_logE2[1]);",
+      "  real E3 = exp(b_logE3[1]);",
+      "  real s1 = b_h1[1] * (E0 + E1) / (4 * exp(b_logC1[1]));",
+      "  real s2 = b_h2[1] * (E0 + E2) / (4 * exp(b_logC2[1]));",
+      "  real C1 = exp(b_logC1[1]) * C_logd1_2[1];",
+      "  real C2 = exp(b_logC2[1]) * C_logd2_2[1];",
+      "  real alpha = exp(b_logalpha[1]);",
+      sep = "\n"),
+    block = "genquant",
+    position = "end")
 
 #'
+#'
+#'
+#' Combined:
+#'      sample1 = 
+#'
+#' 
+#'      nlp_logE0 = X_logE0 * b_logE0
+#'                  _______   _______
+#'                     = 1    = param
+#'
+#'      nlp_logE1 = X_logE1 * b_logE0
+#'                  _______   ______
+#'                  =sample1  
 #'@export
 fit_MuSyC_score_by_dose_robust <- function(
   well_scores,
-  group_vars = vars(compound),
+  group_vars = NULL,
   prior = MuSyC_default_prior(),
   inits = MuSyC_default_inits,
-  combine = FALSE,
+  formula = "MuSyC_combined",
   verbose = FALSE,
   iter = 8000,
   cores = 4,
@@ -455,126 +529,116 @@ fit_MuSyC_score_by_dose_robust <- function(
   control = list(
       adapt_delta = .99,
       max_treedepth = 12),
-  model_evaluation_criteria = c("loo", "bayes_R2"),
+  debug = FALSE,
   ...) {
 
   if (verbose) {
       cat("Fitting MuSyC model\n")
   }
 
-  if (is.data.frame(well_scores)) {
-    grouped_data <- well_scores %>%
-      dplyr::group_by(!!!group_vars) %>%
-      tidyr::nest() %>%
-      dplyr::ungroup()
-  }
-
-  formula <- brms::brmsformula(
-      n_positive | trials(count) ~ MuSyC(
-          logd1, logd2,
-          logE0,
-          logC1, logE1, h1,
-          logC2, logE2, h2,
-          logE3, logalpha),
-      brms::nlf(logd1 ~ log(dose1 / d1_scale_factor)),
-      brms::nlf(logd2 ~ log(dose2 / d2_scale_factor)),
-      logE0 + logC1 + logE1 + h1 + logC2 + logE2 + h2 + logE3 + logalpha  ~ 1,
-      nl = TRUE)
-
-  stanvars <- c(
-      brms::stanvar(
-        scode = paste(
-            "  real MuSyC(",
-            "    real logd1, real logd2,",
-            "    real logE0,",
-            "    real logC1, real logE1, real h1,",
-            "    real logC2, real logE2, real h2,",
-            "    real logE3, real logalpha) {",
-            "      vector[4] numerator_parts;",
-            "      vector[4] denominator_parts;",
-            "      numerator_parts[1] = h1*logC1 + h2*logC2 + logE0;",
-            "      denominator_parts[1] = h1*logC1 + h2*logC2;",
-            "      if( logd1 > negative_infinity() ) {",
-            "        numerator_parts[2] = h1*logd1 + h2*logC2 + logE1;",
-            "        denominator_parts[2] = h1*logd1 + h2*logC2;",
-            "      } else {",
-            "        numerator_parts[2] = negative_infinity();",
-            "        denominator_parts[2] = negative_infinity();",
-            "      }",
-            "      if( logd2 > negative_infinity() ) {",
-            "        numerator_parts[3] = h1*logC1 + h2*logd2 + logE2;",
-            "        denominator_parts[3] = h1*logC1 + h2*logd2;",
-            "      } else {",
-            "        numerator_parts[3] = negative_infinity();",
-            "        denominator_parts[3] = negative_infinity();",
-            "      }",
-            "      if( (logd1 > negative_infinity()) && (logd2 > negative_infinity())) {",
-            "        numerator_parts[4] = h1*logd1 + h2*logd2 + logE3 + logalpha;",
-            "        denominator_parts[4] = h1*logd1 + h2*logd2 + logalpha;",
-            "      } else {",
-            "        numerator_parts[4] = negative_infinity();",
-            "        denominator_parts[4] = negative_infinity();",
-            "      }",
-            "      return exp(log_sum_exp(numerator_parts) - log_sum_exp(denominator_parts));",
-            "  }", sep = "\n"),
-        block = "functions",
-        position = "start"),
-      brms::stanvar(
-          scode = paste(
-            "  real E0 = exp(b_logE0[1]);",
-            "  real E1 = exp(b_logE1[1]);",
-            "  real E2 = exp(b_logE2[1]);",
-            "  real E3 = exp(b_logE3[1]);",
-            "  real s1 = b_h1[1] * (E0 + E1) / (4 * exp(b_logC1[1]));",
-            "  real s2 = b_h2[1] * (E0 + E2) / (4 * exp(b_logC2[1]));",
-            "  real C1 = exp(b_logC1[1]) * C_logd1_2[1];",
-            "  real C2 = exp(b_logC2[1]) * C_logd2_2[1];",
-            "  real alpha = exp(b_logalpha[1]);",
-            sep = "\n"),
-          block = "genquant",
-          position = "end"))
-
-  model_code <- brms::make_stancode(
-      formula = formula,
-      data = grouped_data$data[[1]],
-      family = binomial("identity"),
-      prior = prior,
-      inits = inits,
-      data2 = scale_factors,
-      stanvars = stanvars)
     
-  model <- brms::brm_multiple(
+  if(class(formula) == "brmsformula"){
+      # use the formula as provided
+      inits_fn <- inits
+  } else if (formula == "MuSyC_separate") {
+    inits_fn <- inits(n_plates = 1, n_sample1 = 1, n_sample2 = 1)
+    formula <- brms::brmsformula(
+        n_positive | trials(count) ~ MuSyC(
+            logd1, logd2,
+            logE0,
+            logC1, logE1, h1,
+            logC2, logE2, h2,
+            logE3, logalpha),
+        brms::nlf(logd1 ~ log(dose1 / d1_scale_factor)),
+        brms::nlf(logd2 ~ log(dose2 / d2_scale_factor)),
+        logE0 + logC1 + logE1 + h1 + logC2 + logE2 + h2 + logE3 + logalpha  ~ 1,
+        nl = TRUE)
+    data <- well_scores %>%
+        dplyr::group_by(!!!group_vars) %>%
+        tidyr::nest() %>%
+        dplyr::ungroup()
+    brms_fn <- function(...) {
+        brms::brms_multiple(combine = FALSE, ...)}
+    family <- binomial("identity")
+    
+  } else if (formula == "MuSyC_combined") {
+      data <- well_scores
+      inits_fn <- inits(
+          n_plates = well_scores %>% dplyr::distinct(plate_id) %>% nrow(),
+          n_sample1 = well_scores %>% dplyr::distinct(sample1) %>% nrow(),
+          n_sample2 = well_scores %>% dplyr::distinct(sample2) %>% nrow())
+      formula <- brms::brmsformula(
+          n_positive | trials(count) ~ MuSyC(
+              logd1, logd2,
+              logE0,
+              logC1, logE1, h1,
+              logC2, logE2, h2,
+              logE3, logalpha),
+          brms::nlf(logd1 ~ log(dose1 / d1_scale_factor)),
+          brms::nlf(logd2 ~ log(dose2 / d2_scale_factor)),
+          logE0 ~ 0 + plate_id,
+          logC1 + logE1 + h1 ~ 0 + sample1,
+          logC2 + logE2 + h2 ~ 0 + sample2,
+          logE3 + logalpha ~ 0 + sample1:sample2,
+          nl = TRUE)
+      brms_fn <- brms::brm
+      family <- binomial(link = "identity")
+
+  } else if (formula == "MuSyC_combined_od") {
+      data <- well_scores
+      inits_fn <- inits(
+          n_plates = well_scores %>% dplyr::distinct(plate_id) %>% nrow(),
+          n_sample1 = well_scores %>% dplyr::distinct(sample1) %>% nrow(),
+          n_sample2 = well_scores %>% dplyr::distinct(sample2) %>% nrow())
+      formula <- brms::brmsformula(
+          n_positive ~ MuSyC(
+              logd1, logd2,
+              logE0,
+              logC1, logE1, h1,
+              logC2, logE2, h2,
+              logE3, logalpha) + log(count),
+          brms::nlf(logd1 ~ log(dose1 / d1_scale_factor)),
+          brms::nlf(logd2 ~ log(dose2 / d2_scale_factor)),
+          logE0 ~ 0 + plate_id,
+          logC1 + logE1 + h1 ~ 0 + sample1,
+          logC2 + logE2 + h2 ~ 0 + sample2,
+          logE3 + logalpha ~ 0 + sample1:sample2,
+          nl = TRUE)
+      brms_fn <- brms::brm
+      family <- brms::negbinomial(
+          link = "log",
+          link_shape = "log")
+  }    
+
+  if (debug) {
+      model_code <- brms::make_stancode(
+          formula = formula,
+          data = data,
+          family = family,
+          prior = prior,
+          inits = inits,
+          stanvars = c(
+              MuSyC_function_stanvar,
+              MuSyC_genquant_stanvar))
+      cat(model_code)
+      browser()
+  }
+      
+      
+  model <- brms_fn(
     formula = formula,
-    data = grouped_data$data,
-    family = binomial("identity"),
+    data = data,
+    family = family,
     prior = prior,
-    stanvars = stanvars,
-    inits = inits,
-    combine = FALSE,
-    data2 = grouped_data$data,
+    stanvars = c(
+        MuSyC_function_stanvar,
+        MuSyC_genquant_stanvar),
+    inits = inits_fn,
     iter = iter,
     cores = cores,
     stan_model_args = stan_model_args,
     control = control,
     ...)
-
-    
-  if (!is.null(model_evaluation_criteria)) {
-    # evalate fits
-    model <- model %>%
-      purrr::imap(function(model, i) {
-        group_index <- grouped_data[i, ] %>% dplyr::select(-data)
-        group_index_label <- paste0(
-            names(group_index), ": ", group_index, collapse = ", ")
-        cat("Evaluating model fit for ", group_index_label, "...\n", sep = "")
-        model <- model %>% brms::add_criterion(
-          criterion = model_evaluation_criteria,
-          model_name = paste0("MuSyC:", group_index_label),
-          reloo = TRUE)
-        model
-      })
-  }
-  grouped_data %>%
-    dplyr::mutate(
-      model = model)
 }
+
+

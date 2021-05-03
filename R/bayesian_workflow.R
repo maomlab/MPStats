@@ -1,4 +1,3 @@
-
 #' Customized trace plot
 #'
 #' Customise bayesplot::mcmc_traceplot by
@@ -63,7 +62,7 @@ pairsplot <- function(model, size = 0.2, alpha = 0.1, ...) {
 #'   the plot coordinates. The indicator is with the indicated number of digits as sig figs.
 #'
 #'             R^2 = mean [<Q2.5>, <Q97.5>]
-#' 
+#'
 #' @param model brmsfit
 #' @param digits number of significant figure digits
 #' @return MPStats::geom_indicator object to that can be added to a ggplot2::ggplot
@@ -89,9 +88,9 @@ loo_R2_indicator <- function(model, digits = 2, ...) {
 #'
 #' To make the plot managable, the distribution for each variable
 #' is trimmed at the 95% IQR
-#' 
+#'
 #' The plot title uses `model$name`
-#' 
+#'
 #' @param model brmsfit model
 #' @param irq the interquantile range to plot
 #' @return ggplot2::ggplot object

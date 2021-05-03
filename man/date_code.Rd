@@ -2,14 +2,14 @@
 % Please edit documentation in R/util.R
 \name{date_code}
 \alias{date_code}
-\title{create date code of the form YYMMDD
+\title{create date code of the form YYYYMMDD
 inputs:
    d (optional): date code in the format of Sys.Date() for which to generate the date code, defaulting to 'today'}
 \usage{
 date_code(d = NA)
 }
 \description{
-create date code of the form YYMMDD
+create date code of the form YYYYMMDD
 inputs:
    d (optional): date code in the format of Sys.Date() for which to generate the date code, defaulting to 'today'
 }

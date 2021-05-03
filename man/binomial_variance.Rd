@@ -26,17 +26,17 @@ with n successes and m failures and beta prior with rate parameters a and b is
    posterior ~ p^(a-1) * (1-p)^(b-1) * p^n * (1-p)^m
    posterior ~ p^(n+a-1) * (1-p)^(m+b-1)
    posterior ~ Beta(n+a,m+b)
-   
+}
+\details{
 A flat prior is a Beta(a=1, b=1), so the estimate of the posterior distribution
 for p is Beta(n+1, m+1). One way to think of this is that since the beta distribution is
 the congugate prior to the binomial distribution, the flat prior effectively adds one
 pseudo positive count and one pseudo negative count to the observation.
-}
-\details{
+
 The variance of a Beta distribution is
 
    var[Beta(a,b)] = a*b/((a+b)^2(a+b+1))
-   
+
 so the variance of the posteriror is
 
    var[posterior] = var[Beta(n+1,m+1)] = (n+1)(m+1)/((n+m+2)^2 * (n+m+3))
