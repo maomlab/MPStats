@@ -51,7 +51,7 @@ pairsplot <- function(model, size = 0.2, alpha = 0.1, ...) {
   pairs(off_diag_args = list(
     size = size,
     alpha = alpha),
-    ...) %>%
+    ...) +
     ggplot2::ggtitle(
       label = paste0("Pairs plot: ", model$name, " model"))
 }
