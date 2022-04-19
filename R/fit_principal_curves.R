@@ -38,6 +38,13 @@ fit_principal_curves <- function(
    verbose=TRUE,
    ...){          
 
+  if(!requireNamespace("princurve")){
+    stop(paste0(
+      "To fit principle curves, ",
+      "please install the 'princurve' package with ",
+      "'install.packages(\"princurve\")'."))
+  }
+  
   cell_embedding %>%
     plyr::ddply("cluster_label", function(cluster_embedding){
           
