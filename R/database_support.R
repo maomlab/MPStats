@@ -14,6 +14,13 @@
 #' @export
 get_database_connection <- function(database_parameters){
     if(database_parameters$database_type == "mysql"){
+        if(!requireNamespace("RMySQL")){
+            stop(paste0(
+              "Requesting to load a mysql database, ",
+              "please install the 'RMySQL' package with ",
+              "'install.packages(\"RMySQL\")'."))
+            return(invisible())
+        }
         con <- DBI::dbConnect(
             RMySQL::MySQL(),
             host = database_parameters$host,
@@ -22,7 +29,9 @@ get_database_connection <- function(database_parameters){
             password = database_parameters$password) %>%
             set_schema(database_parameters$schema)
     } else {
-        stop(paste0("Unrecognized or missing database_type ", database_parameters$database_type))
+        stop(paste0(
+          "Unrecognized or missing database_type ",
+          database_parameters$database_type))
     }
 }
 
