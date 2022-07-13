@@ -5,15 +5,15 @@ Title: Tools for analyzing Morphological Profiling data
 Description: Morphological profiling is an assay were cells are stained with
     multiple spectrally separated dyes and then imaged in high-throughput.
     This package collects methods for designing analyzing these types of experiments.
-Authors@R: person("Matthew", "O'Meara", email = "mattjomeara@gmail.com",
+Authors@R: person("Matthew", "O'Meara", email = "maom@umich.edu",
     role = c("aut", "cre"))
 URL: http://github.com/momeara/MPStats
 BugReports: https://github.com/momeara/MPStats/issues
 Depends:
     R (>= 3.6.0)
+bioViews:
 Imports:
     scales (>= 1.0.0),
-    broom (>= 0.5.2.9001),
     tidyr (>= 1.0.0.9000),
     dplyr (>= 0.8.3),
     stringr (>= 1.4.0),
@@ -30,19 +30,12 @@ Imports:
     arrow (>= 0.16.0.2),
     robustHD (>= 0.6.1),
     patchwork (>= 1.0.0.9000),
-    RMySQL (>= 0.10.20),
     caret (>= 6.0-86),
     limma (>= 3.40.6),
     S4Vectors (>= 0.22.1)
 Suggests:
+    RMySQL (>= 0.10.20),
     princurve (>= 2.1.4),
-    seriation (>= 1.2-7),
-    RMySQL (>= 0.10.17),
-    hdf5r (>= 1.3.3),
-    batchtools (>= 0.9.14),
-    future.batchtools (>= 0.9.0),
-    shinystan (>= 2.5.0),
-    knitr (>= 1.30)
 Remotes:
     collectivemedia/tictoc,
     DoseResponse/drcData,
@@ -57,6 +50,7 @@ Collage: 'geom_indicator.R',
     'model_cell_count_by_batch_vars.R',
     'model_score_by_batch_vars.R',
     'monocle3_support.R',
+    'database_support.R',
     'plot_binomial_trial_credible_intervals.R',
     'plot_checkerboard_score_by_dose.R',
     'plot_feature_correlation_matrix.R',

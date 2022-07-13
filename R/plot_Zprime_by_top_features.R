@@ -5,7 +5,7 @@
 #'
 #' @export
 Zprime <- function(positives, negatives) {
-    1 - 3 * (sd(positives) + sd(negatives))/abs(mean(positives) - mean(negatives))
+    1 - 3 * (sd(positives, na.rm=TRUE) + sd(negatives, na.rm=TRUE))/abs(mean(positives, na.rm=TRUE) - mean(negatives, na.rm=TRUE))
 }
 
 

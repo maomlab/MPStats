@@ -57,7 +57,7 @@ populate_cds <- function(
         cat("Creating a Cell Data Set object ...\n")
     }
     cds <- methods::new(
-        Class = "cell_data_set",
+        Class = methods::getClass("cell_data_set", where = "monocle3"),
         assays = SummarizedExperiment::Assays(list(counts = expression_data)),
         colData = colData(sce),
         int_elementMetadata = int_elementMetadata(sce),
