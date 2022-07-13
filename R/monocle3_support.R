@@ -48,7 +48,7 @@ populate_cds <- function(
     }
     # unpack monocle3::new_cell_data_set(...)
     # to not use dgCMatrix for the expression matrix they are dense feature matrices
-    sce <- SingleCellExperiment(
+    sce <- SingleCellExperiment::SingleCellExperiment(
         list(counts = expression_data),
         rowData = gene_metadata,
         colData = cell_metadata)
@@ -83,6 +83,7 @@ populate_cds <- function(
     }
     cds
 }
+
 
 #' Write out clusters from monocle3 cell dataset
 #'
@@ -121,3 +122,31 @@ serialize_clusters <- function(
 }
     
 
+#' Compute important quality control covariates suggested by (Lueken and Theis 2019)
+#'
+#' Add count_depth, n_genes, mt_fraction values to
+#' the column data for the input cell_data_set
+#'
+#' @param cds cell_data_set
+#'@export
+compute_qc_covariates <- function(cds) {
+    count_depth <- cds %>%
+        SingleCellExperiment::counts() %>%
+        Matrix::colSums()
+    SummarizedExperiment::colData(cds)[["count_depth"]] <- count_depth
+    
+    # compute number of non-zero entries per-column for a dgCMatrix
+    # https://stackoverflow.com/a/51560622/198401
+    SummarizedExperiment::colData(cds)[["n_genes"]] <- SingleCellExperiment::counts(cds)@p %>% diff()
+    mt_genes <- SummarizedExperiment::rowData(cds) %>%
+        data.frame %>%
+        dplyr::mutate(index = dplyr::row_number()) %>%
+        dplyr::filter(gene_short_name %>% stringr::str_starts("MT-"))
+         
+    mt_count_depth <- cds[mt_genes$index, ] %>%
+        SingleCellExperiment::counts() %>%
+        Matrix::colSums()
+
+    SummarizedExperiment::colData(cds)[["mt_fraction"]] <- mt_count_depth / count_depth
+    cds
+}
