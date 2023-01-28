@@ -74,5 +74,5 @@ Collage: 'geom_indicator.R',
     'geom_split_violin.R',
     'bayesian_workflow.R',
     'util.R'
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.3
 Encoding: UTF-8
