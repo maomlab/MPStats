@@ -11,7 +11,7 @@ URL: http://github.com/momeara/MPStats
 BugReports: https://github.com/momeara/MPStats/issues
 Depends:
     R (>= 3.6.0)
-bioViews:
+biocViews:
 Imports:
     scales (>= 1.0.0),
     tidyr (>= 1.0.0.9000),
@@ -74,5 +74,5 @@ Collage: 'geom_indicator.R',
     'geom_split_violin.R',
     'bayesian_workflow.R',
     'util.R'
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Encoding: UTF-8
