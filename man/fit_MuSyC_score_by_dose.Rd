@@ -16,15 +16,33 @@ fit_MuSyC_score_by_dose(
   E1_prior = brms::prior(beta(1, 1), nlpar = "E1", lb = 0, ub = 1),
   E2_prior = brms::prior(beta(1, 1), nlpar = "E2", lb = 0, ub = 1),
   E3_alpha_prior = brms::prior(normal(0, 2), nlpar = "E3alpha", lb = 0),
-  C1_init = function() {     as.array(runif(1, 0, 2)) },
-  C2_init = function() {     as.array(runif(1, 0, 2)) },
-  s1_init = function() {     as.array(runif(1, -0.1, 2)) },
-  s2_init = function() {     as.array(runif(1, -0.1, 2)) },
-  log10alpha_init = function() {     as.array(0) },
-  E0_init = function() {     as.array(rbeta(1, 1, 1)) },
-  E1_init = function() {     as.array(rbeta(1, 1, 1)) },
-  E2_init = function() {     as.array(rbeta(1, 1, 1)) },
-  E3_alpha_init = function() {     as.array(rnorm(1, 0, 2)) },
+  C1_init = function() {
+     as.array(runif(1, 0, 2))
+ },
+  C2_init = function() {
+     as.array(runif(1, 0, 2))
+ },
+  s1_init = function() {
+     as.array(runif(1, -0.1, 2))
+ },
+  s2_init = function() {
+     as.array(runif(1, -0.1, 2))
+ },
+  log10alpha_init = function() {
+     as.array(0)
+ },
+  E0_init = function() {
+     as.array(rbeta(1, 1, 1))
+ },
+  E1_init = function() {
+     as.array(rbeta(1, 1, 1))
+ },
+  E2_init = function() {
+     as.array(rbeta(1, 1, 1))
+ },
+  E3_alpha_init = function() {
+     as.array(rnorm(1, 0, 2))
+ },
   combine = FALSE,
   verbose = FALSE,
   iter = 8000,
