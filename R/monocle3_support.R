@@ -74,8 +74,26 @@ populate_cds <- function(
 
     S4Vectors::metadata(cds)$cds_version <- Biobase::package.version("monocle3")
     clusters <- stats::setNames(S4Vectors::SimpleList(), character(0))
-    cds <- monocle3::estimate_size_factors(cds)
-    cds
+    
+    # we want to do this but there is a bug where it fails to detect that it
+    # SingleCellExperiment::counts(cds) is not sparse
+    # cds <- monocle3::estimate_size_factors(cds)
+    if (any(Matrix::colSums(SingleCellExperiment::counts(cds)) == 0)) {
+      warning(
+        "Your CDS object contains cells with zero reads. ", 
+        "This causes size factor calculation to fail. Please remove ", 
+        "the zero read cells using ",
+        "cds <- cds[,Matrix::colSums(exprs(cds)) != 0] and then ", 
+        "run cds <- estimate_size_factors(cds)")
+    }
+    cell_total <- cds |>
+      SingleCellExperiment::counts() |>
+      round() |>
+      apply(2, sum)
+    # "mean-geometric-mean-total"
+    sf <- cell_total/exp(mean(log(cell_total)))
+    sf[is.na(sf)] <- 1
+    SummarizedExperiment::colData(cds)$Size_Factor <- sf
 
     row.names(SummarizedExperiment::colData(cds)) <- expression_data %>% ncol %>% seq_len
     if (!is.null(embedding)) {
